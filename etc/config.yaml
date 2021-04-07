@@ -1,0 +1,11 @@
+port: 9092
+
+logConfig:
+  folder: ./logs/
+  filename: app.log
+  maxage: 24
+  level: info
+  maxbackups: 7
+  localtime: false
+  compress: true
+  maxsize: 1
