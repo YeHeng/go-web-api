@@ -1,9 +1,9 @@
 package app
 
 import (
+	"github.com/YeHeng/gtool/common/model"
 	"log"
 
-	"github.com/YeHeng/gtool/common/model"
 	"github.com/spf13/viper"
 )
 

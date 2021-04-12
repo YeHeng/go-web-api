@@ -29,9 +29,9 @@ func init() {
 	var logger *zap.Logger
 
 	if gin.Mode() == gin.ReleaseMode {
-		logger = zap.New(core, zap.Fields(zap.String("serviceName", "webhook")))
+		logger = zap.New(core)
 	} else {
-		logger = zap.New(core, zap.AddCaller(), zap.Development(), zap.Fields(zap.String("serviceName", "go-web-tool")))
+		logger = zap.New(core, zap.AddCaller(), zap.Development())
 	}
 
 	defer logger.Sync()

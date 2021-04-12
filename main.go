@@ -3,33 +3,23 @@ package main
 import (
 	"context"
 	"errors"
+	"github.com/YeHeng/gtool/app"
+	"github.com/YeHeng/gtool/app/middleware"
 	"net/http"
 	"os"
 	"os/signal"
-	"path/filepath"
-	"strings"
 	"syscall"
 	"time"
 
-	"github.com/YeHeng/gtool/app"
-	"github.com/YeHeng/gtool/app/middleware"
-	"github.com/gin-contrib/static"
 	"github.com/gin-gonic/gin"
 )
 
 func main() {
 
 	r := gin.New()
-	r.Use(middleware.Logger(), middleware.Recovery(false) /*, gzip.Gzip(gzip.DefaultCompression)*/)
+	r.Use(middleware.Logger(), middleware.Recovery(false))
 	app.Logger.Infow("初始化Router...")
-	r.Static("/static", "./web")
-	r.Use(static.Serve("/", static.LocalFile("./client/dist", true)))
-	r.NoRoute(noRoute)
-	r.NoRoute(func(c *gin.Context) {
-		c.File(filepath.Join(".", "client", "dist", "index.html"))
-	})
-
-	app.Logger.Infof("开始启动APP!")
+	app.Logger.Infow("开始启动APP!")
 
 	config := app.Config
 
@@ -69,13 +59,4 @@ func main() {
 		app.Logger.Fatalf("Server forced to shutdown: %v", err)
 	}
 
-}
-
-func noRoute(c *gin.Context) {
-	path := strings.Split(c.Request.URL.Path, "/")
-	if path[1] == "api" {
-		c.JSON(http.StatusNotFound, gin.H{"msg": "no route", "body": nil})
-	} else {
-		c.HTML(http.StatusOK, "index.html", "")
-	}
 }

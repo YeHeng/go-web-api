@@ -1,16 +1,14 @@
 package model
 
 type Configuration struct {
-	LogConfig LogConfig
-	Port      string `default:"9092"`
-	Channel   string
-	Key       string
+	LogConfig LogConfig `json:"log" yaml:"log"`
+	Port      string    `json:"port" yaml:"port" default:"9092"`
 }
 
 type LogConfig struct {
-	Folder   string `default:"./logs/"`
-	Filename string `default:"app.log"`
-	Level    string `default:"info"`
+	Folder   string `json:"folder" yaml:"folder" default:"./logs/"`
+	Filename string `json:"filename" yaml:"filename" default:"app.log"`
+	Level    string `json:"level" yaml:"level"  default:"info"`
 
 	// MaxSize is the maximum size in megabytes of the log file before it gets
 	// rotated. It defaults to 100 megabytes.

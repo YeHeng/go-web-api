@@ -2,10 +2,10 @@ package middleware
 
 import (
 	"bytes"
-	"time"
-
 	"github.com/YeHeng/gtool/app"
 	"github.com/YeHeng/gtool/common/util"
+	"time"
+
 	"github.com/gin-gonic/gin"
 	"go.uber.org/zap"
 )
@@ -61,14 +61,18 @@ func Logger() func(c *gin.Context) {
 				zap.Duration("latency_time", latencyTime),
 				zap.String("request_method", reqMethod),
 				zap.String("request_uri", reqUri),
-				zap.Int("response_size", c.Writer.Size()))
+				zap.Int("response_size", c.Writer.Size()),
+				zap.String("service_name", "gwebtool"),
+			)
 		case statusCode >= 500:
 			app.Logger.Errorw(c.Errors.String(), zap.String("client_ip", clientIP),
 				zap.Int("status_code", statusCode),
 				zap.Duration("latency_time", latencyTime),
 				zap.String("request_method", reqMethod),
 				zap.String("request_uri", reqUri),
-				zap.Int("response_size", c.Writer.Size()))
+				zap.Int("response_size", c.Writer.Size()),
+				zap.String("service_name", "gwebtool"),
+			)
 		default:
 
 			if blw.body.Len() < 1024 {
@@ -77,14 +81,18 @@ func Logger() func(c *gin.Context) {
 					zap.Duration("latency_time", latencyTime),
 					zap.String("request_method", reqMethod),
 					zap.String("request_uri", reqUri),
-					zap.Int("response_size", c.Writer.Size()))
+					zap.Int("response_size", c.Writer.Size()),
+					zap.String("service_name", "gwebtool"),
+				)
 			} else {
 				app.Logger.Infow(string(blw.body.Bytes()), zap.String("client_ip", clientIP),
 					zap.Int("status_code", statusCode),
 					zap.Duration("latency_time", latencyTime),
 					zap.String("request_method", reqMethod),
 					zap.String("request_uri", reqUri),
-					zap.Int("response_size", c.Writer.Size()))
+					zap.Int("response_size", c.Writer.Size()),
+					zap.String("service_name", "gwebtool"),
+				)
 			}
 		}
 

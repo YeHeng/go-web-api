@@ -1,6 +1,6 @@
 port: 9092
 
-logConfig:
+log:
   folder: ./logs/
   filename: app.log
   maxage: 24
