@@ -9,7 +9,7 @@ import (
 
 var Config model.Configuration
 
-func init() {
+func LoadConfig() {
 	viper.SetConfigName("config")
 	viper.AddConfigPath("./etc/")
 	viper.AddConfigPath("/etc/gtool")

@@ -1,7 +1,7 @@
 package middleware
 
 import (
-	"github.com/YeHeng/gtool/app"
+	"github.com/YeHeng/gtool/platform/app"
 	"net"
 	"net/http"
 	"net/http/httputil"
@@ -31,7 +31,7 @@ func Recovery(stack bool) gin.HandlerFunc {
 
 				httpRequest, _ := httputil.DumpRequest(c.Request, false)
 				if brokenPipe {
-					app.Logger.Error(c.Request.URL.Path,
+					app.Logger.Errorw(c.Request.URL.Path,
 						zap.Any("error", err),
 						zap.String("request", string(httpRequest)),
 					)
@@ -42,14 +42,14 @@ func Recovery(stack bool) gin.HandlerFunc {
 				}
 
 				if stack {
-					app.Logger.Error("[Recovery from panic]",
+					app.Logger.Errorw("[Recovery from panic]",
 						zap.Time("time", time.Now()),
 						zap.Any("error", err),
 						zap.String("request", string(httpRequest)),
 						zap.String("stack", string(debug.Stack())),
 					)
 				} else {
-					app.Logger.Error("[Recovery from panic]",
+					app.Logger.Errorw("[Recovery from panic]",
 						zap.Time("time", time.Now()),
 						zap.Any("error", err),
 						zap.String("request", string(httpRequest)),

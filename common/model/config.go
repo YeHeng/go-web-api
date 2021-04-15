@@ -1,8 +1,18 @@
 package model
 
 type Configuration struct {
-	LogConfig LogConfig `json:"log" yaml:"log"`
+	AppName   string    `json:"appName" yaml:"appName" default:"gtool"`
+	LogConfig LogConfig `json:"logConfig" yaml:"logConfig"`
 	Port      string    `json:"port" yaml:"port" default:"9092"`
+	DbConfig  DbConfig  `json:"dbConfig" yaml:"dbConfig"`
+}
+
+type DbConfig struct {
+	DbType          string `json:"dbType" yaml:"dbType" default:"sqlite"`
+	Dsn             string `json:"dsn" yaml:"dsn" default:"gtool.db"`
+	Username        string `json:"username" yaml:"username"`
+	Password        string `json:"password" yaml:"password"`
+	SkipTransaction bool   `json:"skipTransaction" yaml:"skipTransaction" default:"false"`
 }
 
 type LogConfig struct {
