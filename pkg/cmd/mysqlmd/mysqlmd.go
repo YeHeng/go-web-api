@@ -1,14 +1,14 @@
-package main
+package mysqlmd
 
 import (
 	"database/sql"
-	"flag"
 	"fmt"
-	"github.com/YeHeng/gtool/cmd/mysqlmd/mysql"
 	"log"
 	"os"
 	"regexp"
 	"strings"
+
+	"github.com/YeHeng/go-web-api/pkg/cmd/mysqlmd/mysql"
 
 	"gorm.io/gorm"
 )
@@ -30,31 +30,7 @@ type tableColumn struct {
 	ColumnDefault   sql.NullString `db:"COLUMN_DEFAULT"`   // default value
 }
 
-var (
-	dbAddr    string
-	dbUser    string
-	dbPass    string
-	dbName    string
-	genTables string
-)
-
-func init() {
-	addr := flag.String("addr", "", "请输入 db 地址，例如：127.0.0.1:3306\n")
-	user := flag.String("user", "", "请输入 db 用户名\n")
-	pass := flag.String("pass", "", "请输入 db 密码\n")
-	name := flag.String("name", "", "请输入 db 名称\n")
-	table := flag.String("tables", "*", "请输入 table 名称，默认为“*”，多个可用“,”分割\n")
-
-	flag.Parse()
-
-	dbAddr = *addr
-	dbUser = *user
-	dbPass = *pass
-	dbName = strings.ToLower(*name)
-	genTables = strings.ToLower(*table)
-}
-
-func main() {
+func RunMySQLMD(dbAddr string, dbUser string, dbPass string, dbName string, genTables string) {
 
 	// 初始化 DB
 	db, err := mysql.New(dbAddr, dbUser, dbPass, dbName)

@@ -23,8 +23,6 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/xinliangnote/go-gin-api/internal/api/repository/db_repo"
-
 	"github.com/pkg/errors"
 	"gorm.io/gorm"
 )

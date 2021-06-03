@@ -2,13 +2,13 @@ package middleware
 
 import (
 	"fmt"
-	util2 "github.com/YeHeng/gtool/pkg/util"
+	"github.com/YeHeng/go-web-api/pkg/config"
+	logger2 "github.com/YeHeng/go-web-api/pkg/logger"
 	"os"
 	"strings"
 	"time"
 
-	"github.com/YeHeng/gtool/platform/app"
-
+	util2 "github.com/YeHeng/go-web-api/pkg/util"
 	gorm2 "github.com/jinzhu/gorm"
 	"go.uber.org/zap"
 	"gorm.io/driver/mysql"
@@ -21,25 +21,25 @@ var Db *gorm.DB
 
 func InitDb() {
 
-	dbConfig := app.Config.DbConfig
+	dbConfig := config.Config.DbConfig
 	userHome, _ := util2.Home()
 	var err error
 
-	err = os.MkdirAll(userHome+"/."+app.Config.AppName, 0777)
+	err = os.MkdirAll(userHome+"/."+config.Config.AppName, 0777)
 
 	if err != nil {
-		app.Logger.Errorw(err.Error())
+		logger2.Logger.Errorw(err.Error())
 	}
 
 	if strings.ToUpper(dbConfig.DbType) == "SQLITE" {
-		Db, err = gorm.Open(sqlite.Open(userHome+"/."+app.Config.AppName+"/"+dbConfig.Dsn), &gorm.Config{
+		Db, err = gorm.Open(sqlite.Open(userHome+"/."+config.Config.AppName+"/"+dbConfig.Dsn), &gorm.Config{
 			SkipDefaultTransaction: dbConfig.SkipTransaction,
 		})
 	} else if strings.ToUpper(dbConfig.DbType) == "MYSQL" {
 		Db, err = gorm.Open(mysql.Open(dbConfig.Dsn), &gorm.Config{})
 	}
 	if err != nil {
-		app.Logger.Errorf("%v", err)
+		logger2.Logger.Errorf("%v", err)
 		panic(err)
 	}
 
@@ -55,7 +55,7 @@ type optionalLogger struct {
 
 func (z *optionalLogger) Printf(s string, params ...interface{}) {
 	l := createLog(params)
-	app.Logger.With(
+	logger2.Logger.With(
 		zap.Time("occurredAt", l.occurredAt),
 		zap.String("source", l.source),
 		zap.String("duration", l.duration+"ms"),

@@ -1,16 +1,16 @@
-package app
+package core
 
 import (
 	"context"
 	"errors"
+	"github.com/YeHeng/go-web-api/pkg/logger"
 	"net/http"
 	"os"
 	"os/signal"
 	"syscall"
 	"time"
 
-	"github.com/YeHeng/gtool/common/model"
-
+	"github.com/YeHeng/go-web-api/common/model"
 	"github.com/gin-gonic/gin"
 )
 
@@ -27,9 +27,9 @@ func InitServer(config model.Configuration, r *gin.Engine) {
 	go func() {
 		if err := srv.ListenAndServe(); err != nil {
 			if errors.Is(err, http.ErrServerClosed) {
-				Logger.Infow("Server exited.")
+				logger.Logger.Infow("Server exited.")
 			} else {
-				Logger.Fatalf("Gin start fail. %v", err)
+				logger.Logger.Fatalf("Gin start fail. %v", err)
 			}
 		}
 	}()
@@ -42,7 +42,7 @@ func InitServer(config model.Configuration, r *gin.Engine) {
 	// kill -9 is syscall.SIGKILL but can't be catch, so don't need add it
 	signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
 	<-quit
-	Logger.Infow("Shutting down server...")
+	logger.Logger.Infow("Shutting down server...")
 
 	// The context is used to inform the server it has 5 seconds to finish
 	// the request it is currently handling
@@ -50,7 +50,7 @@ func InitServer(config model.Configuration, r *gin.Engine) {
 	defer cancel()
 
 	if err := srv.Shutdown(ctx); err != nil {
-		Logger.Fatalf("Server forced to shutdown: %v", err)
+		logger.Logger.Fatalf("Server forced to shutdown: %v", err)
 	}
 }
 
@@ -59,6 +59,6 @@ func Shutdown() {
 
 	defer cancel()
 	if err := srv.Shutdown(ctx); err != nil {
-		Logger.Fatalf("Server forced to shutdown: %v", err)
+		logger.Logger.Fatalf("Server forced to shutdown: %v", err)
 	}
 }

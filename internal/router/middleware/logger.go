@@ -2,11 +2,10 @@ package middleware
 
 import (
 	"bytes"
-	util2 "github.com/YeHeng/gtool/pkg/util"
+	"github.com/YeHeng/go-web-api/pkg/logger"
 	"time"
 
-	"github.com/YeHeng/gtool/platform/app"
-
+	util2 "github.com/YeHeng/go-web-api/pkg/util"
 	"github.com/gin-gonic/gin"
 	"go.uber.org/zap"
 )
@@ -18,7 +17,7 @@ type bodyLogWriter struct {
 
 func (w bodyLogWriter) Write(b []byte) (int, error) {
 	if n, err := w.body.Write(b); err != nil {
-		app.Logger.Errorf("%v", err)
+		logger.Logger.Errorf("%v", err)
 		return n, err
 	}
 	return w.ResponseWriter.Write(b)
@@ -57,7 +56,7 @@ func Logger() func(c *gin.Context) {
 
 		switch {
 		case statusCode >= 400 && statusCode <= 499:
-			app.Logger.Warnw(c.Errors.String(), zap.String("client_ip", clientIP),
+			logger.Logger.Warnw(c.Errors.String(), zap.String("client_ip", clientIP),
 				zap.Int("status_code", statusCode),
 				zap.Duration("latency_time", latencyTime),
 				zap.String("request_method", reqMethod),
@@ -66,7 +65,7 @@ func Logger() func(c *gin.Context) {
 				zap.String("service_name", "gwebtool"),
 			)
 		case statusCode >= 500:
-			app.Logger.Errorw(c.Errors.String(), zap.String("client_ip", clientIP),
+			logger.Logger.Errorw(c.Errors.String(), zap.String("client_ip", clientIP),
 				zap.Int("status_code", statusCode),
 				zap.Duration("latency_time", latencyTime),
 				zap.String("request_method", reqMethod),
@@ -77,7 +76,7 @@ func Logger() func(c *gin.Context) {
 		default:
 
 			if blw.body.Len() < 1024 {
-				app.Logger.Infow(string(blw.body.Bytes()), zap.String("client_ip", clientIP),
+				logger.Logger.Infow(string(blw.body.Bytes()), zap.String("client_ip", clientIP),
 					zap.Int("status_code", statusCode),
 					zap.Duration("latency_time", latencyTime),
 					zap.String("request_method", reqMethod),
@@ -88,7 +87,7 @@ func Logger() func(c *gin.Context) {
 			} else {
 				content := blw.body
 				content.Truncate(1024)
-				app.Logger.Infow(string(content.Bytes()), zap.String("client_ip", clientIP),
+				logger.Logger.Infow(string(content.Bytes()), zap.String("client_ip", clientIP),
 					zap.Int("status_code", statusCode),
 					zap.Duration("latency_time", latencyTime),
 					zap.String("request_method", reqMethod),

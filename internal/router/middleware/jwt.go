@@ -1,12 +1,11 @@
 package middleware
 
 import (
+	"github.com/YeHeng/go-web-api/pkg/logger"
 	"net/http"
 	"time"
 
-	"github.com/YeHeng/gtool/common/model"
-	"github.com/YeHeng/gtool/platform/app"
-
+	"github.com/YeHeng/go-web-api/common/model"
 	jwt "github.com/appleboy/gin-jwt/v2"
 	"github.com/gin-gonic/gin"
 )
@@ -56,7 +55,7 @@ func InitJwt(r *gin.Engine) {
 	})
 
 	if err != nil {
-		app.Logger.Fatal("JWT Error:" + err.Error())
+		logger.Logger.Fatal("JWT Error:" + err.Error())
 		panic(err)
 	}
 
@@ -65,7 +64,7 @@ func InitJwt(r *gin.Engine) {
 	errInit := JwtAuthMiddleware.MiddlewareInit()
 
 	if errInit != nil {
-		app.Logger.Fatal("authMiddleware.MiddlewareInit() Error:" + errInit.Error())
+		logger.Logger.Fatal("authMiddleware.MiddlewareInit() Error:" + errInit.Error())
 		panic(err)
 	}
 
@@ -75,7 +74,7 @@ func InitJwt(r *gin.Engine) {
 
 	r.NoRoute(JwtAuthMiddleware.MiddlewareFunc(), func(c *gin.Context) {
 		claims := jwt.ExtractClaims(c)
-		app.Logger.Infof("NoRoute claims: %#v\n", claims)
+		logger.Logger.Infof("NoRoute claims: %#v\n", claims)
 		c.JSON(404, gin.H{"code": "PAGE_NOT_FOUND", "message": "Page not found"})
 	})
 

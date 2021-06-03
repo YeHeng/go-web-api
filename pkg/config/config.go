@@ -1,7 +1,13 @@
-package model
+package config
+
+import (
+	"log"
+
+	"github.com/spf13/viper"
+)
 
 type Configuration struct {
-	AppName   string    `json:"appName" yaml:"appName" default:"gtool"`
+	AppName   string    `json:"appName" yaml:"appName" default:"go-web-api"`
 	LogConfig LogConfig `json:"logConfig" yaml:"logConfig"`
 	Port      string    `json:"port" yaml:"port" default:"9092"`
 	DbConfig  DbConfig  `json:"dbConfig" yaml:"dbConfig"`
@@ -9,7 +15,7 @@ type Configuration struct {
 
 type DbConfig struct {
 	DbType          string `json:"dbType" yaml:"dbType" default:"sqlite"`
-	Dsn             string `json:"dsn" yaml:"dsn" default:"gtool.db"`
+	Dsn             string `json:"dsn" yaml:"dsn" default:"go-web-api.db"`
 	Username        string `json:"username" yaml:"username"`
 	Password        string `json:"password" yaml:"password"`
 	SkipTransaction bool   `json:"skipTransaction" yaml:"skipTransaction" default:"false"`
@@ -44,4 +50,22 @@ type LogConfig struct {
 	// Compress determines if the rotated log files should be compressed
 	// using gzip. The default is not to perform compression.
 	Compress bool `json:"compress" yaml:"compress"`
+}
+
+var Config Configuration
+
+func LoadConfig() {
+	viper.SetConfigName("config")
+	viper.AddConfigPath("./etc/")
+	viper.AddConfigPath("/etc/go-web-api")
+	viper.AddConfigPath("$HOME/.go-web-api")
+	viper.SetConfigType("yaml")
+	if err := viper.ReadInConfig(); err != nil {
+		log.Fatalf("Error reading config file, %s", err)
+	}
+	err := viper.Unmarshal(&Config)
+	if err != nil {
+		log.Fatalf("unable to decode into struct, %v", err)
+	}
+
 }

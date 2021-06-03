@@ -1,6 +1,7 @@
 package middleware
 
 import (
+	"github.com/YeHeng/go-web-api/pkg/logger"
 	"net"
 	"net/http"
 	"net/http/httputil"
@@ -8,8 +9,6 @@ import (
 	"runtime/debug"
 	"strings"
 	"time"
-
-	"github.com/YeHeng/gtool/platform/app"
 
 	"github.com/gin-gonic/gin"
 	"go.uber.org/zap"
@@ -32,7 +31,7 @@ func Recovery(stack bool) gin.HandlerFunc {
 
 				httpRequest, _ := httputil.DumpRequest(c.Request, false)
 				if brokenPipe {
-					app.Logger.Errorw(c.Request.URL.Path,
+					logger.Logger.Errorw(c.Request.URL.Path,
 						zap.Any("error", err),
 						zap.String("request", string(httpRequest)),
 					)
@@ -43,14 +42,14 @@ func Recovery(stack bool) gin.HandlerFunc {
 				}
 
 				if stack {
-					app.Logger.Errorw("[Recovery from panic]",
+					logger.Logger.Errorw("[Recovery from panic]",
 						zap.Time("time", time.Now()),
 						zap.Any("error", err),
 						zap.String("request", string(httpRequest)),
 						zap.String("stack", string(debug.Stack())),
 					)
 				} else {
-					app.Logger.Errorw("[Recovery from panic]",
+					logger.Logger.Errorw("[Recovery from panic]",
 						zap.Time("time", time.Now()),
 						zap.Any("error", err),
 						zap.String("request", string(httpRequest)),

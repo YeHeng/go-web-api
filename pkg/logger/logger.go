@@ -1,7 +1,8 @@
-package app
+package logger
 
 import (
 	"fmt"
+	"github.com/YeHeng/go-web-api/pkg/config"
 	"os"
 
 	"github.com/gin-gonic/gin"
@@ -14,13 +15,13 @@ var Logger *zap.SugaredLogger
 
 func InitLogger() {
 
-	if err := os.MkdirAll(Config.LogConfig.Folder, 0777); err != nil {
+	if err := os.MkdirAll(config.Config.LogConfig.Folder, 0777); err != nil {
 		fmt.Println(err.Error())
 	}
 
 	encoder := getEncoder()
 	level := zapcore.DebugLevel
-	_ = level.Set(Config.LogConfig.Level)
+	_ = level.Set(config.Config.LogConfig.Level)
 
 	core := zapcore.NewCore(encoder,
 		zapcore.NewMultiWriteSyncer(zapcore.AddSync(os.Stdout), zapcore.AddSync(hook())),
@@ -49,11 +50,11 @@ func getEncoder() zapcore.Encoder {
 
 func hook() *lumberjack.Logger {
 	return &lumberjack.Logger{
-		Filename:   Config.LogConfig.Folder + Config.LogConfig.Filename,
-		MaxSize:    Config.LogConfig.MaxSize,
-		MaxBackups: Config.LogConfig.MaxBackups,
-		MaxAge:     Config.LogConfig.MaxAge,
-		Compress:   Config.LogConfig.Compress,
-		LocalTime:  Config.LogConfig.LocalTime,
+		Filename:   config.Config.LogConfig.Folder + config.Config.LogConfig.Filename,
+		MaxSize:    config.Config.LogConfig.MaxSize,
+		MaxBackups: config.Config.LogConfig.MaxBackups,
+		MaxAge:     config.Config.LogConfig.MaxAge,
+		Compress:   config.Config.LogConfig.Compress,
+		LocalTime:  config.Config.LogConfig.LocalTime,
 	}
 }

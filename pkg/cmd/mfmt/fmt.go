@@ -1,4 +1,4 @@
-package main
+package mfmt
 
 import (
 	"bufio"
@@ -64,7 +64,7 @@ func init() {
 	}
 }
 
-func main() {
+func RunFmt() {
 	err := filepath.Walk("./", func(path string, info os.FileInfo, err error) error {
 		if err != nil {
 			return err
