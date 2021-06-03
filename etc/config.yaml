@@ -12,6 +12,6 @@ logConfig:
   maxsize: 1
 
 dbConfig:
-  dbType: sqlite
-  dsn: gtool.db
+  dbType: mysql
+  dsn: root:@tcp(127.0.0.1:3306)/gtool?charset=utf8mb4&parseTime=True&loc=Local
   skipTransaction: true

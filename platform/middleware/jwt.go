@@ -1,12 +1,14 @@
 package middleware
 
 import (
-	"github.com/YeHeng/gtool/common/model"
-	"github.com/YeHeng/gtool/platform/app"
-	jwt "github.com/appleboy/gin-jwt/v2"
-	"github.com/gin-gonic/gin"
 	"net/http"
 	"time"
+
+	"github.com/YeHeng/gtool/common/model"
+	"github.com/YeHeng/gtool/platform/app"
+
+	jwt "github.com/appleboy/gin-jwt/v2"
+	"github.com/gin-gonic/gin"
 )
 
 const identityKey = "id"
@@ -94,7 +96,7 @@ func Authenticator(c *gin.Context) (interface{}, error) {
 
 	return &model.Credential{
 		UserName: user.Username,
-		Roles:    user.Roles,
+		Roles:    nil,
 	}, nil
 
 }

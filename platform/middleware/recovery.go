@@ -1,7 +1,6 @@
 package middleware
 
 import (
-	"github.com/YeHeng/gtool/platform/app"
 	"net"
 	"net/http"
 	"net/http/httputil"
@@ -9,6 +8,8 @@ import (
 	"runtime/debug"
 	"strings"
 	"time"
+
+	"github.com/YeHeng/gtool/platform/app"
 
 	"github.com/gin-gonic/gin"
 	"go.uber.org/zap"

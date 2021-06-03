@@ -1,8 +1,9 @@
 package model
 
 import (
-	"gorm.io/gorm"
 	"time"
+
+	"gorm.io/gorm"
 )
 
 type Credential struct {
@@ -11,14 +12,14 @@ type Credential struct {
 }
 
 type User struct {
-	gorm.Model
-	Email    *string `gorm:"unique;"`
-	Username string  `gorm:"unique;uniqueIndex"`
-	Password string
-	Enabled  bool
-	Expired  time.Time
-
-	Roles []*Role `gorm:"many2many:user_roles;"`
+	ID          int64     `gorm:"primaryKey;"`
+	Email       string    `gorm:"uniqueIndex;size:512;not null;"`
+	Username    string    `gorm:"uniqueIndex;size:512;not null;"`
+	Password    string    `gorm:"not null"`
+	Enabled     bool      `gorm:"not null;default:false"`
+	Expired     time.Time `gorm:"not null;"`
+	CreatedTime time.Time `gorm:"autoCreateTime;not null;"`
+	UpdateTime  time.Time `gorm:"autoUpdateTime;not null;"`
 }
 
 type Role struct {

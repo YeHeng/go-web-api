@@ -2,17 +2,19 @@ package middleware
 
 import (
 	"fmt"
-	"github.com/YeHeng/gtool/common/model"
-	"github.com/YeHeng/gtool/common/util"
-	"github.com/YeHeng/gtool/platform/app"
-	gorm2 "github.com/jinzhu/gorm"
-	"go.uber.org/zap"
-	"gorm.io/driver/sqlite"
-	"gorm.io/gorm"
-	"gorm.io/gorm/logger"
+	util2 "github.com/YeHeng/gtool/pkg/util"
 	"os"
 	"strings"
 	"time"
+
+	"github.com/YeHeng/gtool/platform/app"
+
+	gorm2 "github.com/jinzhu/gorm"
+	"go.uber.org/zap"
+	"gorm.io/driver/mysql"
+	"gorm.io/driver/sqlite"
+	"gorm.io/gorm"
+	"gorm.io/gorm/logger"
 )
 
 var Db *gorm.DB
@@ -20,7 +22,7 @@ var Db *gorm.DB
 func InitDb() {
 
 	dbConfig := app.Config.DbConfig
-	userHome, _ := util.Home()
+	userHome, _ := util2.Home()
 	var err error
 
 	err = os.MkdirAll(userHome+"/."+app.Config.AppName, 0777)
@@ -33,17 +35,14 @@ func InitDb() {
 		Db, err = gorm.Open(sqlite.Open(userHome+"/."+app.Config.AppName+"/"+dbConfig.Dsn), &gorm.Config{
 			SkipDefaultTransaction: dbConfig.SkipTransaction,
 		})
+	} else if strings.ToUpper(dbConfig.DbType) == "MYSQL" {
+		Db, err = gorm.Open(mysql.Open(dbConfig.Dsn), &gorm.Config{})
 	}
 	if err != nil {
 		app.Logger.Errorf("%v", err)
 		panic(err)
 	}
 
-	err = Db.AutoMigrate(model.User{}, model.Role{})
-	if err != nil {
-		app.Logger.Errorf("%v", err)
-		panic(err)
-	}
 	Db.Config.Logger = logger.New(&optionalLogger{}, logger.Config{
 		SlowThreshold: 200 * time.Millisecond,
 		LogLevel:      logger.Info,

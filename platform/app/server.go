@@ -3,13 +3,15 @@ package app
 import (
 	"context"
 	"errors"
-	"github.com/YeHeng/gtool/common/model"
-	"github.com/gin-gonic/gin"
 	"net/http"
 	"os"
 	"os/signal"
 	"syscall"
 	"time"
+
+	"github.com/YeHeng/gtool/common/model"
+
+	"github.com/gin-gonic/gin"
 )
 
 var srv *http.Server
