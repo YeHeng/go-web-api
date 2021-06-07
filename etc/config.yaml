@@ -1,4 +1,4 @@
-appName: go-web-api
+appName: gtool
 port: 9092
 
 logConfig:
@@ -13,5 +13,5 @@ logConfig:
 
 dbConfig:
   dbType: mysql
-  dsn: root:@tcp(127.0.0.1:3306)/go-web-api?charset=utf8mb4&parseTime=True&loc=Local
+  dsn: root:@tcp(127.0.0.1:3306)/gtool?charset=utf8mb4&parseTime=True&loc=Local
   skipTransaction: true
