@@ -3,7 +3,6 @@ package pkg
 import (
 	"github.com/YeHeng/gtool/platform/app"
 	"github.com/YeHeng/gtool/platform/middleware"
-
 	"github.com/casbin/casbin/v2"
 	gormadapter "github.com/casbin/gorm-adapter/v3"
 )

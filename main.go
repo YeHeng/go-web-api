@@ -4,7 +4,6 @@ import (
 	"github.com/YeHeng/gtool/pkg"
 	"github.com/YeHeng/gtool/platform/app"
 	"github.com/YeHeng/gtool/platform/middleware"
-
 	"github.com/gin-gonic/gin"
 )
 

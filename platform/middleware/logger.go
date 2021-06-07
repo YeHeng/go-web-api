@@ -2,10 +2,9 @@ package middleware
 
 import (
 	"bytes"
-	util2 "github.com/YeHeng/gtool/pkg/util"
-	"time"
-
+	"github.com/YeHeng/gtool/common/util"
 	"github.com/YeHeng/gtool/platform/app"
+	"time"
 
 	"github.com/gin-gonic/gin"
 	"go.uber.org/zap"
@@ -29,7 +28,7 @@ func Logger() func(c *gin.Context) {
 		// 开始时间
 		startTime := time.Now()
 
-		buffer := util2.Borrow()
+		buffer := util.Borrow()
 
 		blw := &bodyLogWriter{body: buffer, ResponseWriter: c.Writer}
 		c.Writer = blw
@@ -99,7 +98,7 @@ func Logger() func(c *gin.Context) {
 			}
 		}
 
-		util2.Return(buffer)
+		util.Return(buffer)
 
 	}
 }
