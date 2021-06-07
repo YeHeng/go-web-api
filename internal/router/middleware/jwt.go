@@ -85,13 +85,13 @@ func Authenticator(c *gin.Context) (interface{}, error) {
 	if err := c.ShouldBind(&loginVals); err != nil {
 		return nil, jwt.ErrMissingLoginValues
 	}
-	userID := loginVals.Username
-	password := loginVals.Password
+	//userID := loginVals.Username
+	//password := loginVals.Password
 
 	var user model.User
-	if err := Db.Where("Username = ? AND Password = ?", userID, password).First(&user).Error; err != nil {
-		return nil, jwt.ErrFailedAuthentication
-	}
+	//if err := db2.Db.Where("Username = ? AND Password = ?", userID, password).First(&user).Error; err != nil {
+	//	return nil, jwt.ErrFailedAuthentication
+	//}
 
 	return &model.Credential{
 		UserName: user.Username,

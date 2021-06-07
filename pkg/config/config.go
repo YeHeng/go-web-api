@@ -7,65 +7,77 @@ import (
 )
 
 type Configuration struct {
-	AppName   string    `json:"appName" yaml:"appName" default:"go-web-api"`
-	LogConfig LogConfig `json:"logConfig" yaml:"logConfig"`
-	Port      string    `json:"port" yaml:"port" default:"9092"`
-	DbConfig  DbConfig  `json:"dbConfig" yaml:"dbConfig"`
+	AppName string `toml:"appName" default:"go-web-api"`
+	Port    string `toml:"port" default:"9092"`
+
+	Feature struct {
+		DisablePProf      bool `toml:"disablePProf" disablePProf:"port" default:"false"`
+		DisableSwagger    bool `toml:"disableSwagger" default:"false"`
+		DisablePrometheus bool `toml:"disablePrometheus" default:"false"`
+		PanicNotify       bool `toml:"panicNotify" default:"true"`
+		RecordMetrics     bool `toml:"recordMetrics" default:"true"`
+		EnableCors        bool `toml:"enableCors" default:"true"`
+		EnableRate        bool `toml:"enableRate" default:"true"`
+	} `toml:"feature"`
+
+	LogConfig struct {
+		Folder   string `toml:"folder" default:"./logs/"`
+		Filename string `toml:"filename" default:"app.log"`
+		Level    string `toml:"level"  default:"info"`
+
+		// MaxSize is the maximum size in megabytes of the log file before it gets
+		// rotated. It defaults to 100 megabytes.
+		MaxSize int `toml:"maxsize"`
+
+		// MaxAge is the maximum number of days to retain old log files based on the
+		// timestamp encoded in their filename.  Note that a day is defined as 24
+		// hours and may not exactly correspond to calendar days due to daylight
+		// savings, leap seconds, etc. The default is not to remove old log files
+		// based on age.
+		MaxAge int `toml:"maxage"`
+
+		// MaxBackups is the maximum number of old log files to retain.  The default
+		// is to retain all old log files (though MaxAge may still cause them to get
+		// deleted.)
+		MaxBackups int `toml:"maxbackups"`
+
+		// LocalTime determines if the time used for formatting the timestamps in
+		// backup files is the computer's local time.  The default is to use UTC
+		// time.
+		LocalTime bool `toml:"localtime"`
+
+		// Compress determines if the rotated log files should be compressed
+		// using gzip. The default is not to perform compression.
+		Compress bool `toml:"compress"`
+	} `toml:"log"`
+
+	DbConfig struct {
+		DbType          string `toml:"dbType" default:"sqlite"`
+		Dsn             string `toml:"dsn" default:"go-web-api.db"`
+		Username        string `toml:"username"`
+		Password        string `toml:"password"`
+		SkipTransaction bool   `toml:"skipTransaction" default:"false"`
+	} `toml:"db"`
 }
 
-type DbConfig struct {
-	DbType          string `json:"dbType" yaml:"dbType" default:"sqlite"`
-	Dsn             string `json:"dsn" yaml:"dsn" default:"go-web-api.db"`
-	Username        string `json:"username" yaml:"username"`
-	Password        string `json:"password" yaml:"password"`
-	SkipTransaction bool   `json:"skipTransaction" yaml:"skipTransaction" default:"false"`
-}
+var config = new(Configuration)
 
-type LogConfig struct {
-	Folder   string `json:"folder" yaml:"folder" default:"./logs/"`
-	Filename string `json:"filename" yaml:"filename" default:"app.log"`
-	Level    string `json:"level" yaml:"level"  default:"info"`
-
-	// MaxSize is the maximum size in megabytes of the log file before it gets
-	// rotated. It defaults to 100 megabytes.
-	MaxSize int `json:"maxsize" yaml:"maxsize"`
-
-	// MaxAge is the maximum number of days to retain old log files based on the
-	// timestamp encoded in their filename.  Note that a day is defined as 24
-	// hours and may not exactly correspond to calendar days due to daylight
-	// savings, leap seconds, etc. The default is not to remove old log files
-	// based on age.
-	MaxAge int `json:"maxage" yaml:"maxage"`
-
-	// MaxBackups is the maximum number of old log files to retain.  The default
-	// is to retain all old log files (though MaxAge may still cause them to get
-	// deleted.)
-	MaxBackups int `json:"maxbackups" yaml:"maxbackups"`
-
-	// LocalTime determines if the time used for formatting the timestamps in
-	// backup files is the computer's local time.  The default is to use UTC
-	// time.
-	LocalTime bool `json:"localtime" yaml:"localtime"`
-
-	// Compress determines if the rotated log files should be compressed
-	// using gzip. The default is not to perform compression.
-	Compress bool `json:"compress" yaml:"compress"`
-}
-
-var Config Configuration
-
-func LoadConfig() {
+func init() {
 	viper.SetConfigName("config")
 	viper.AddConfigPath("./etc/")
 	viper.AddConfigPath("/etc/go-web-api")
 	viper.AddConfigPath("$HOME/.go-web-api")
-	viper.SetConfigType("yaml")
+	viper.SetConfigType("toml")
 	if err := viper.ReadInConfig(); err != nil {
 		log.Fatalf("Error reading config file, %s", err)
 	}
-	err := viper.Unmarshal(&Config)
+	err := viper.Unmarshal(&config)
 	if err != nil {
 		log.Fatalf("unable to decode into struct, %v", err)
 	}
 
+}
+
+func Get() Configuration {
+	return *config
 }
