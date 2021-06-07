@@ -3,8 +3,10 @@ package main
 import (
 	"context"
 	"errors"
-	"github.com/YeHeng/gtool/app"
-	"github.com/YeHeng/gtool/app/middleware"
+	"github.com/YeHeng/go-web-api/internal/middleware"
+	"github.com/YeHeng/go-web-api/internal/pkg/logger"
+	"github.com/YeHeng/go-web-api/internal/pkg/plugin"
+	"github.com/YeHeng/go-web-api/pkg/config"
 	"net/http"
 	"os"
 	"os/signal"
@@ -16,15 +18,27 @@ import (
 
 func main() {
 
-	r := gin.New()
-	r.Use(middleware.Logger(), middleware.Recovery(false))
-	app.Logger.Infow("初始化Router...")
-	app.Logger.Infow("开始启动APP!")
+	cfg := config.Get()
 
-	config := app.Config
+	for _, p := range plugin.Get() {
+		p.Init()
+	}
+
+	log := logger.Get()
+
+	r := gin.New()
+
+	for _, middleware := range middleware.GetMiddlewares() {
+		middleware.Init(r)
+	}
+
+	r.Use()
+
+	log.Infow("初始化Router...")
+	log.Infow("开始启动APP!")
 
 	srv := &http.Server{
-		Addr:    ":" + config.Port,
+		Addr:    ":" + cfg.Port,
 		Handler: r,
 	}
 
@@ -33,9 +47,9 @@ func main() {
 	go func() {
 		if err := srv.ListenAndServe(); err != nil {
 			if errors.Is(err, http.ErrServerClosed) {
-				app.Logger.Infow("Server exited.")
+				log.Infow("Server exited.")
 			} else {
-				app.Logger.Fatalf("Gin start fail. %v", err)
+				log.Fatalf("Gin start fail. %v", err)
 			}
 		}
 	}()
@@ -48,7 +62,7 @@ func main() {
 	// kill -9 is syscall.SIGKILL but can't be catch, so don't need add it
 	signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
 	<-quit
-	app.Logger.Infow("Shutting down server...")
+	log.Infow("Shutting down server...")
 
 	// The context is used to inform the server it has 5 seconds to finish
 	// the request it is currently handling
@@ -56,7 +70,7 @@ func main() {
 	defer cancel()
 
 	if err := srv.Shutdown(ctx); err != nil {
-		app.Logger.Fatalf("Server forced to shutdown: %v", err)
+		log.Fatalf("Server forced to shutdown: %v", err)
 	}
 
 }

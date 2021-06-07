@@ -1,7 +1,7 @@
 package middleware
 
 import (
-	"github.com/YeHeng/gtool/app"
+	"github.com/YeHeng/go-web-api/internal/pkg/logger"
 	"net"
 	"net/http"
 	"net/http/httputil"
@@ -17,6 +17,9 @@ import (
 func Recovery(stack bool) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		defer func() {
+
+			log := logger.Get()
+
 			if err := recover(); err != nil {
 				// Check for a broken connection, as it is not really a
 				// condition that warrants a panic stack trace.
@@ -31,7 +34,7 @@ func Recovery(stack bool) gin.HandlerFunc {
 
 				httpRequest, _ := httputil.DumpRequest(c.Request, false)
 				if brokenPipe {
-					app.Logger.Error(c.Request.URL.Path,
+					log.Error(c.Request.URL.Path,
 						zap.Any("error", err),
 						zap.String("request", string(httpRequest)),
 					)
@@ -42,14 +45,14 @@ func Recovery(stack bool) gin.HandlerFunc {
 				}
 
 				if stack {
-					app.Logger.Error("[Recovery from panic]",
+					log.Error("[Recovery from panic]",
 						zap.Time("time", time.Now()),
 						zap.Any("error", err),
 						zap.String("request", string(httpRequest)),
 						zap.String("stack", string(debug.Stack())),
 					)
 				} else {
-					app.Logger.Error("[Recovery from panic]",
+					log.Error("[Recovery from panic]",
 						zap.Time("time", time.Now()),
 						zap.Any("error", err),
 						zap.String("request", string(httpRequest)),

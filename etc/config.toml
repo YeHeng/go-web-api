@@ -1,0 +1,28 @@
+appName = "go-web-api"
+port = 9092
+
+[feature]
+    disablePProf = false
+    disableSwagger = false
+    disablePrometheus = false
+    panicNotify = true
+    recordMetrics = true
+    enableCors = true
+    enableRate = true
+
+[logger]
+    folder = "./logs/"
+    filename = "app.log"
+    maxage = 24
+    level = "info"
+    maxbackups = 7
+    localtime = true
+    compress = true
+    maxsize = 1
+
+[database]
+    dbType = "mysql"
+    dsn = "root:@tcp(127.0.0.1:3306)/go-web-api?charset=utf8mb4&parseTime=True&loc=Local"
+    skipTransaction = true
+    username = "root"
+    password = "root"
