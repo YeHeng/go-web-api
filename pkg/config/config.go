@@ -10,6 +10,7 @@ import (
 type Configuration struct {
 	AppName string `toml:"appName" default:"go-web-api"`
 	Port    string `toml:"port" default:"9092"`
+	Stack   bool   `toml:"stack" default:"false"`
 
 	Feature struct {
 		DisablePProf      bool `toml:"disablePProf" disablePProf:"port" default:"false"`

@@ -2,6 +2,7 @@ package middleware
 
 import (
 	"github.com/YeHeng/go-web-api/internal/pkg/logger"
+	"github.com/YeHeng/go-web-api/pkg/config"
 	"net"
 	"net/http"
 	"net/http/httputil"
@@ -14,11 +15,22 @@ import (
 	"go.uber.org/zap"
 )
 
-func Recovery(stack bool) gin.HandlerFunc {
-	return func(c *gin.Context) {
-		defer func() {
+func init() {
+	AddMiddleware(&recoverMiddleware{})
+}
 
-			log := logger.Get()
+type recoverMiddleware struct {
+}
+
+func (m *recoverMiddleware) Destroy() {
+}
+
+func (m *recoverMiddleware) Init(r *gin.Engine) {
+	log := logger.Get()
+	stack := config.Get().Stack
+	log.Infow("* [register recover middleware]")
+	r.Use(func(c *gin.Context) {
+		defer func() {
 
 			if err := recover(); err != nil {
 				// Check for a broken connection, as it is not really a
@@ -62,5 +74,5 @@ func Recovery(stack bool) gin.HandlerFunc {
 			}
 		}()
 		c.Next()
-	}
+	})
 }

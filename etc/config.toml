@@ -1,5 +1,6 @@
 appName = "go-web-api"
 port = 9092
+stack = false
 
 [feature]
     disablePProf = false
