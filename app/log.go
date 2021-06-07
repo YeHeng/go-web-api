@@ -12,7 +12,7 @@ import (
 
 var Logger *zap.SugaredLogger
 
-func InitLogger() {
+func init() {
 
 	if err := os.MkdirAll(Config.LogConfig.Folder, 0777); err != nil {
 		fmt.Println(err.Error())
@@ -44,7 +44,7 @@ func getEncoder() zapcore.Encoder {
 	encoderConfig.EncodeTime = zapcore.ISO8601TimeEncoder
 	encoderConfig.EncodeLevel = zapcore.CapitalLevelEncoder
 	encoderConfig.EncodeCaller = zapcore.ShortCallerEncoder
-	return zapcore.NewJSONEncoder(encoderConfig)
+	return zapcore.NewConsoleEncoder(encoderConfig)
 }
 
 func hook() *lumberjack.Logger {

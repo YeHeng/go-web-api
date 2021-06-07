@@ -2,8 +2,8 @@ package middleware
 
 import (
 	"bytes"
+	"github.com/YeHeng/gtool/app"
 	"github.com/YeHeng/gtool/common/util"
-	"github.com/YeHeng/gtool/platform/app"
 	"time"
 
 	"github.com/gin-gonic/gin"
@@ -85,9 +85,7 @@ func Logger() func(c *gin.Context) {
 					zap.String("service_name", "gwebtool"),
 				)
 			} else {
-				content := blw.body
-				content.Truncate(1024)
-				app.Logger.Infow(string(content.Bytes()), zap.String("client_ip", clientIP),
+				app.Logger.Infow(string(blw.body.Bytes()), zap.String("client_ip", clientIP),
 					zap.Int("status_code", statusCode),
 					zap.Duration("latency_time", latencyTime),
 					zap.String("request_method", reqMethod),

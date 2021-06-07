@@ -1,17 +1,11 @@
-appName: gtool
 port: 9092
 
-logConfig:
+log:
   folder: ./logs/
   filename: app.log
   maxage: 24
   level: info
   maxbackups: 7
-  localtime: true
+  localtime: false
   compress: true
   maxsize: 1
-
-dbConfig:
-  dbType: sqlite
-  dsn: gtool.db
-  skipTransaction: true
