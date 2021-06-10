@@ -1,8 +1,11 @@
 package config
 
 import (
+	"fmt"
+	"github.com/YeHeng/go-web-api/pkg/color"
 	"github.com/fsnotify/fsnotify"
 	"log"
+	"time"
 
 	"github.com/spf13/viper"
 )
@@ -54,11 +57,15 @@ type Configuration struct {
 	} `toml:"logger"`
 
 	Database struct {
-		DbType          string `toml:"dbType"`
-		Dsn             string `toml:"dsn"`
-		Username        string `toml:"username"`
-		Password        string `toml:"password"`
-		SkipTransaction bool   `toml:"skipTransaction" default:"false"`
+		DbType          string        `toml:"dbType"`
+		Addr            string        `toml:"addr"`
+		Username        string        `toml:"username"`
+		Password        string        `toml:"password"`
+		DbName          string        `toml:"dbName"`
+		SkipTransaction bool          `toml:"skipTransaction" default:"false"`
+		MaxOpenConn     int           `toml:"maxOpenConn"`
+		MaxIdleConn     int           `toml:"maxIdleConn"`
+		ConnMaxLifeTime time.Duration `toml:"connMaxLifeTime"`
 	} `toml:"database"`
 }
 
@@ -70,6 +77,9 @@ func init() {
 	viper.AddConfigPath("/etc/go-web-api")
 	viper.AddConfigPath("$HOME/.go-web-api")
 	viper.SetConfigType("toml")
+
+	fmt.Println(color.Green("* [loading config.toml]"))
+
 	if err := viper.ReadInConfig(); err != nil {
 		log.Fatalf("Error reading config file, %s", err)
 	}

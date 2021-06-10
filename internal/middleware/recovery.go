@@ -1,7 +1,9 @@
 package middleware
 
 import (
+	"fmt"
 	"github.com/YeHeng/go-web-api/internal/pkg/logger"
+	"github.com/YeHeng/go-web-api/pkg/color"
 	"github.com/YeHeng/go-web-api/pkg/config"
 	"net"
 	"net/http"
@@ -28,7 +30,7 @@ func (m *recoverMiddleware) Destroy() {
 func (m *recoverMiddleware) Init(r *gin.Engine) {
 	log := logger.Get()
 	stack := config.Get().Stack
-	log.Infow("* [register recover middleware]")
+	fmt.Println(color.Green("* [register middleware Recover]"))
 	r.Use(func(c *gin.Context) {
 		defer func() {
 

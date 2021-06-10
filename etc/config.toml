@@ -23,7 +23,12 @@ stack = false
 
 [database]
     dbType = "mysql"
-    dsn = "root:@tcp(127.0.0.1:3306)/go-web-api?charset=utf8mb4&parseTime=True&loc=Local"
+    dsn = "127.0.0.1:3306"
+    dbName = "go-web-api"
     skipTransaction = true
     username = "root"
     password = "root"
+    connmaxlifetime = 60
+    maxidleconn = 60
+    maxopenconn = 10
+

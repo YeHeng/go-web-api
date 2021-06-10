@@ -4,8 +4,8 @@ import (
 	"context"
 	"errors"
 	"github.com/YeHeng/go-web-api/internal/middleware"
+	"github.com/YeHeng/go-web-api/internal/pkg/factory"
 	"github.com/YeHeng/go-web-api/internal/pkg/logger"
-	"github.com/YeHeng/go-web-api/internal/pkg/plugin"
 	"github.com/YeHeng/go-web-api/pkg/config"
 	"net/http"
 	"os"
@@ -20,7 +20,7 @@ func main() {
 
 	cfg := config.Get()
 
-	for _, p := range plugin.Get() {
+	for _, p := range factory.GetAllBeans() {
 		p.Init()
 	}
 
@@ -28,11 +28,9 @@ func main() {
 
 	r := gin.New()
 
-	for _, middleware := range middleware.GetMiddlewares() {
-		middleware.Init(r)
+	for _, m := range middleware.GetMiddlewares() {
+		m.Init(r)
 	}
-
-	r.Use()
 
 	log.Infow("初始化Router...")
 	log.Infow("开始启动APP!")

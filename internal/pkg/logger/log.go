@@ -2,7 +2,7 @@ package logger
 
 import (
 	"fmt"
-	"github.com/YeHeng/go-web-api/internal/pkg/plugin"
+	"github.com/YeHeng/go-web-api/internal/pkg/factory"
 	"github.com/YeHeng/go-web-api/pkg/color"
 	"github.com/YeHeng/go-web-api/pkg/config"
 	"os"
@@ -14,18 +14,18 @@ import (
 )
 
 func init() {
-	plugin.AddPlugin(&logPlugin{})
+	factory.Register("log", &logLifecycle{})
 }
 
-type logPlugin struct {
+type logLifecycle struct {
 }
 
-func (m *logPlugin) Destroy() {
+func (m *logLifecycle) Destroy() {
 }
 
 var log *zap.SugaredLogger
 
-func (m *logPlugin) Init() {
+func (m *logLifecycle) Init() {
 
 	fmt.Println(color.Green("* [logging init]"))
 

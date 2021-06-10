@@ -1,7 +1,8 @@
 package middleware
 
 import (
-	"github.com/YeHeng/go-web-api/internal/pkg/logger"
+	"fmt"
+	"github.com/YeHeng/go-web-api/pkg/color"
 	"github.com/YeHeng/go-web-api/pkg/config"
 	"github.com/gin-contrib/pprof"
 	"github.com/gin-gonic/gin"
@@ -20,7 +21,7 @@ func (m *pprofMiddleware) Destroy() {
 func (m *pprofMiddleware) Init(r *gin.Engine) {
 	cfg := config.Get().Feature
 	if !cfg.DisablePProf {
+		fmt.Println(color.Green("* [register middleware pprof]"))
 		pprof.Register(r) // register pprof to gin
-		logger.Get().Infow("* [register pprof]")
 	}
 }
