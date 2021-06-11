@@ -2,6 +2,7 @@ package db
 
 import (
 	"fmt"
+	"github.com/YeHeng/go-web-api/pkg/color"
 	"github.com/YeHeng/go-web-api/pkg/config"
 	"gorm.io/gorm/logger"
 	"time"
@@ -12,7 +13,21 @@ import (
 	"gorm.io/gorm/schema"
 )
 
-var _ Repo = (*dbRepo)(nil)
+var r Repo = (*dbRepo)(nil)
+
+func init() {
+	fmt.Println(color.Green("* [database init]"))
+
+	var e error
+	r, e = create()
+	if e != nil {
+		panic(e)
+	}
+}
+
+func Get() Repo {
+	return r
+}
 
 type Repo interface {
 	i()
@@ -24,7 +39,7 @@ type dbRepo struct {
 	Db *gorm.DB
 }
 
-func New() (Repo, error) {
+func create() (Repo, error) {
 	cfg := config.Get().Database
 	db, err := dbConnect(cfg.Username, cfg.Password, cfg.Addr, cfg.DbName)
 	if err != nil {
@@ -90,7 +105,7 @@ func dbConnect(user, pass, addr, dbName string) (*gorm.DB, error) {
 	sqlDB.SetConnMaxLifetime(time.Minute * cfg.ConnMaxLifeTime)
 
 	// 使用插件
-	db.Use(&TracePlugin{})
+	//db.Use(&TracePlugin{})
 
 	return db, nil
 }

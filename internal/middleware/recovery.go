@@ -30,7 +30,7 @@ func (m *recoverMiddleware) Destroy() {
 func (m *recoverMiddleware) Init(r *gin.Engine) {
 	log := logger.Get()
 	stack := config.Get().Stack
-	fmt.Println(color.Green("* [register middleware Recover]"))
+	fmt.Println(color.Green("* [register middleware recovery]"))
 	r.Use(func(c *gin.Context) {
 		defer func() {
 
@@ -53,7 +53,12 @@ func (m *recoverMiddleware) Init(r *gin.Engine) {
 						zap.String("request", string(httpRequest)),
 					)
 					// If the connection is dead, we can't write a status to it.
-					c.Error(err.(error)) // nolint: errcheck
+					e := c.Error(err.(error)) // nolint: errcheck
+					c.JSON(http.StatusResetContent, gin.H{
+						"code":    http.StatusResetContent,
+						"message": http.StatusText(http.StatusResetContent),
+						"reason":  e.JSON(),
+					})
 					c.Abort()
 					return
 				}
@@ -72,7 +77,12 @@ func (m *recoverMiddleware) Init(r *gin.Engine) {
 						zap.String("request", string(httpRequest)),
 					)
 				}
-				c.AbortWithStatus(http.StatusInternalServerError)
+				c.JSON(http.StatusInternalServerError, gin.H{
+					"code":    http.StatusInternalServerError,
+					"message": http.StatusText(http.StatusInternalServerError),
+					"reason":  err,
+				})
+				c.Next()
 			}
 		}()
 		c.Next()

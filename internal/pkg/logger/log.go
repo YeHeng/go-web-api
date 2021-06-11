@@ -23,7 +23,7 @@ type logLifecycle struct {
 func (m *logLifecycle) Destroy() {
 }
 
-var log *zap.SugaredLogger
+var log *zap.Logger
 
 func (m *logLifecycle) Init() {
 
@@ -43,16 +43,14 @@ func (m *logLifecycle) Init() {
 		zapcore.NewMultiWriteSyncer(zapcore.AddSync(os.Stdout), zapcore.AddSync(hook())),
 		level)
 
-	var logger *zap.Logger
-
 	if gin.Mode() == gin.ReleaseMode {
-		logger = zap.New(core)
+		log = zap.New(core)
 	} else {
-		logger = zap.New(core, zap.AddCaller(), zap.Development())
+		log = zap.New(core, zap.AddCaller(), zap.Development())
 	}
 
-	defer logger.Sync()
-	log = logger.Sugar()
+	defer log.Sync()
+	// log = logger.Sugar()
 }
 
 func getEncoder() zapcore.Encoder {
@@ -75,6 +73,6 @@ func hook() *lumberjack.Logger {
 	}
 }
 
-func Get() *zap.SugaredLogger {
+func Get() *zap.Logger {
 	return log
 }

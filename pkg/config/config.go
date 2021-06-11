@@ -10,6 +10,17 @@ import (
 	"github.com/spf13/viper"
 )
 
+const (
+	// 登录验证 Token，Header 中传递的参数
+	HeaderLoginToken = "Token"
+
+	// 签名验证 Token，Header 中传递的参数
+	HeaderSignToken = "Authorization"
+
+	// 签名验证 Date，Header 中传递的参数
+	HeaderSignTokenDate = "Authorization-Date"
+)
+
 type Configuration struct {
 	AppName string `toml:"appName" default:"go-web-api"`
 	Port    string `toml:"port" default:"9092"`
@@ -24,6 +35,13 @@ type Configuration struct {
 		EnableCors        bool `toml:"enableCors" default:"true"`
 		EnableRate        bool `toml:"enableRate" default:"true"`
 	} `toml:"feature"`
+
+	Cors struct {
+		AllowedOrigins   string `toml:"allowedOrigins" default:"*"`
+		AllowedMethods   string `toml:"allowedMethods" default:"GET,POST,HEAD,PUT,PATCH,DELETE"`
+		AllowedHeaders   string `toml:"allowedHeaders" default:"*"`
+		AllowCredentials bool   `toml:"allowCredentials" default:"true"`
+	} `toml:"cors"`
 
 	Logger struct {
 		Folder   string `toml:"folder" default:"./logs/"`

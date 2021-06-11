@@ -3,32 +3,37 @@ port = 9092
 stack = false
 
 [feature]
-    disablePProf = false
-    disableSwagger = false
-    disablePrometheus = false
-    panicNotify = true
-    recordMetrics = true
-    enableCors = true
-    enableRate = true
+disablePProf = false
+disableSwagger = false
+disablePrometheus = false
+panicNotify = true
+recordMetrics = true
+enableCors = true
+enableRate = true
 
 [logger]
-    folder = "./logs/"
-    filename = "app.log"
-    maxage = 24
-    level = "info"
-    maxbackups = 7
-    localtime = true
-    compress = true
-    maxsize = 1
+folder = "./logs/"
+filename = "app.log"
+maxage = 24
+level = "info"
+maxbackups = 7
+localtime = true
+compress = true
+maxsize = 1
 
 [database]
-    dbType = "mysql"
-    dsn = "127.0.0.1:3306"
-    dbName = "go-web-api"
-    skipTransaction = true
-    username = "root"
-    password = "root"
-    connmaxlifetime = 60
-    maxidleconn = 60
-    maxopenconn = 10
+dbType = "mysql"
+dsn = "127.0.0.1:3306"
+dbName = "go_web_api"
+skipTransaction = true
+username = "root"
+password = "root"
+connmaxlifetime = 60
+maxidleconn = 60
+maxopenconn = 10
 
+[cors]
+allowedOrigins = "*"
+allowedMethods = "GET,POST,HEAD,PUT,PATCH,DELETE"
+AllowedHeaders = "*"
+AllowCredentials = true

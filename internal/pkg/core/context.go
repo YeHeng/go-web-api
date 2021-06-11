@@ -1,4 +1,4 @@
-package context
+package core
 
 import (
 	"bytes"
@@ -14,7 +14,6 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/gin-gonic/gin/binding"
-	"go.uber.org/zap"
 )
 
 type HandlerFunc func(c Context)
@@ -24,7 +23,6 @@ type Trace = trace.T
 const (
 	_Alias          = "_alias_"
 	_TraceName      = "_trace_"
-	_LoggerName     = "_logger_"
 	_BodyName       = "_body_"
 	_PayloadName    = "_payload_"
 	_UserID         = "_user_id_"
@@ -51,6 +49,8 @@ func releaseContext(ctx Context) {
 }
 
 var _ Context = (*context)(nil)
+
+type OnPanicNotify func(ctx Context, err interface{}, stackInfo string)
 
 type Context interface {
 	init()
@@ -83,10 +83,6 @@ type Context interface {
 	Trace() Trace
 	setTrace(trace Trace)
 	disableTrace()
-
-	// Logger 获取 Logger 对象
-	Logger() *zap.Logger
-	setLogger(logger *zap.Logger)
 
 	// Payload 正确返回
 	Payload(payload interface{})
@@ -139,16 +135,21 @@ type Context interface {
 
 	// ResponseWriter 获取 ResponseWriter 对象
 	ResponseWriter() gin.ResponseWriter
+
+	GetContext() *gin.Context
 }
 
 type context struct {
 	ctx *gin.Context
 }
 
+func (c *context) GetContext() *gin.Context {
+	return c.ctx
+}
+
 type StdContext struct {
 	stdctx.Context
 	Trace
-	*zap.Logger
 }
 
 func (c *context) init() {
@@ -234,19 +235,6 @@ func (c *context) disableTrace() {
 	c.setTrace(nil)
 }
 
-func (c *context) Logger() *zap.Logger {
-	logger, ok := c.ctx.Get(_LoggerName)
-	if !ok {
-		return nil
-	}
-
-	return logger.(*zap.Logger)
-}
-
-func (c *context) setLogger(logger *zap.Logger) {
-	c.ctx.Set(_LoggerName, logger)
-}
-
 func (c *context) getPayload() interface{} {
 	if payload, ok := c.ctx.Get(_PayloadName); ok != false {
 		return payload
@@ -322,8 +310,8 @@ func (c *context) AbortWithError(err errno.Error) {
 }
 
 func (c *context) abortError() errno.Error {
-	err, _ := c.ctx.Get(_AbortErrorName)
-	return err.(errno.Error)
+	c.ctx.Next()
+	return nil
 }
 
 func (c *context) Alias() string {
@@ -394,7 +382,6 @@ func (c *context) RequestContext() StdContext {
 		//c.ctx.Request.Context(),
 		stdctx.Background(),
 		c.Trace(),
-		c.Logger(),
 	}
 }
 

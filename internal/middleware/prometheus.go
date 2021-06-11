@@ -1,10 +1,12 @@
-package metrics
+package middleware
 
 import (
 	"fmt"
-	"github.com/YeHeng/go-web-api/internal/pkg/factory"
 	"github.com/YeHeng/go-web-api/pkg/color"
+	"github.com/YeHeng/go-web-api/pkg/config"
+	"github.com/gin-gonic/gin"
 	"github.com/prometheus/client_golang/prometheus"
+	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"github.com/spf13/cast"
 )
 
@@ -12,15 +14,13 @@ var metricsRequestsTotal *prometheus.CounterVec
 var metricsRequestsCost *prometheus.HistogramVec
 
 func init() {
-	factory.Register("metrics", &metricsLifecycle{})
+	AddMiddleware(&prometheusMiddleware{})
 }
 
-type metricsLifecycle struct {
+type prometheusMiddleware struct {
 }
 
-func (m *metricsLifecycle) Init() {
-
-	fmt.Println(color.Green("* [prometheus init]"))
+func (m *prometheusMiddleware) Init(r *gin.Engine) {
 
 	metricsRequestsTotal = prometheus.NewCounterVec(
 		prometheus.CounterOpts{
@@ -42,9 +42,18 @@ func (m *metricsLifecycle) Init() {
 	)
 
 	prometheus.MustRegister(metricsRequestsTotal, metricsRequestsCost)
+
+	cfg := config.Get().Feature
+
+	if !cfg.RecordMetrics {
+		return
+	}
+
+	fmt.Println(color.Green("* [register middleware prometheus]"))
+	r.GET("/metrics", gin.WrapH(promhttp.Handler())) // register prometheus
 }
 
-func (m *metricsLifecycle) Destroy() {
+func (m *prometheusMiddleware) Destroy() {
 }
 
 // RecordMetrics 记录指标
