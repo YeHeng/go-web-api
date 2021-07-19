@@ -22,35 +22,36 @@ type prometheusMiddleware struct {
 
 func (m *prometheusMiddleware) Init(r *gin.Engine) {
 
-	metricsRequestsTotal = prometheus.NewCounterVec(
-		prometheus.CounterOpts{
-			Namespace: "go_web_api",
-			Subsystem: "",
-			Name:      "requests_total",
-			Help:      "request(ms) total",
-		},
-		[]string{"method", "path"},
-	)
-	metricsRequestsCost = prometheus.NewHistogramVec(
-		prometheus.HistogramOpts{
-			Namespace: "go_web_api",
-			Subsystem: "",
-			Name:      "requests_cost",
-			Help:      "request(ms) cost milliseconds",
-		},
-		[]string{"method", "path", "success", "http_code", "business_code", "cost_milliseconds", "trace_id"},
-	)
-
-	prometheus.MustRegister(metricsRequestsTotal, metricsRequestsCost)
-
 	cfg := config.Get().Feature
+	if cfg.RecordMetrics {
 
-	if !cfg.RecordMetrics {
-		return
+		fmt.Println(color.Green("* [register middleware metrics]"))
+
+		metricsRequestsTotal = prometheus.NewCounterVec(
+			prometheus.CounterOpts{
+				Namespace: "go_web_api",
+				Subsystem: "",
+				Name:      "requests_total",
+				Help:      "request(ms) total",
+			},
+			[]string{"method", "path"},
+		)
+		metricsRequestsCost = prometheus.NewHistogramVec(
+			prometheus.HistogramOpts{
+				Namespace: "go_web_api",
+				Subsystem: "",
+				Name:      "requests_cost",
+				Help:      "request(ms) cost milliseconds",
+			},
+			[]string{"method", "path", "success", "http_code", "business_code", "cost_milliseconds", "trace_id"},
+		)
+
+		prometheus.MustRegister(metricsRequestsTotal, metricsRequestsCost)
+
+		r.GET("/metrics", gin.WrapH(promhttp.Handler())) // register prometheus
+
 	}
 
-	fmt.Println(color.Green("* [register middleware prometheus]"))
-	r.GET("/metrics", gin.WrapH(promhttp.Handler())) // register prometheus
 }
 
 func (m *prometheusMiddleware) Destroy() {

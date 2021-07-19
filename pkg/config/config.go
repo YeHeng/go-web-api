@@ -28,8 +28,7 @@ type Configuration struct {
 
 	Feature struct {
 		DisablePProf      bool `toml:"disablePProf" disablePProf:"port" default:"false"`
-		DisableSwagger    bool `toml:"disableSwagger" default:"false"`
-		DisablePrometheus bool `toml:"disablePrometheus" default:"false"`
+		DisableSwagger    bool `toml:"disableSwagger" default:"true"`
 		PanicNotify       bool `toml:"panicNotify" default:"true"`
 		RecordMetrics     bool `toml:"recordMetrics" default:"true"`
 		EnableCors        bool `toml:"enableCors" default:"true"`

@@ -3,13 +3,12 @@ port = 9092
 stack = false
 
 [feature]
-disablePProf = false
+disablePProf = true
 disableSwagger = false
-disablePrometheus = false
 panicNotify = true
 recordMetrics = true
 enableCors = true
-enableRate = true
+enableRate = false
 
 [logger]
 folder = "./logs/"
