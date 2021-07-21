@@ -2,9 +2,6 @@ package middleware
 
 import (
 	"fmt"
-	"github.com/YeHeng/go-web-api/internal/pkg/logger"
-	"github.com/YeHeng/go-web-api/pkg/color"
-	"github.com/YeHeng/go-web-api/pkg/config"
 	"net"
 	"net/http"
 	"net/http/httputil"
@@ -12,6 +9,10 @@ import (
 	"runtime/debug"
 	"strings"
 	"time"
+
+	"github.com/YeHeng/go-web-api/internal/pkg/logger"
+	"github.com/YeHeng/go-web-api/pkg/color"
+	"github.com/YeHeng/go-web-api/pkg/config"
 
 	"github.com/gin-gonic/gin"
 	"go.uber.org/zap"

@@ -2,8 +2,10 @@ package middleware
 
 import (
 	"fmt"
+
 	"github.com/YeHeng/go-web-api/pkg/color"
 	"github.com/YeHeng/go-web-api/pkg/config"
+
 	"github.com/gin-contrib/pprof"
 	"github.com/gin-gonic/gin"
 )

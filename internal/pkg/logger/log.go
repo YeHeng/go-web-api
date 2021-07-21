@@ -2,10 +2,11 @@ package logger
 
 import (
 	"fmt"
+	"os"
+
 	"github.com/YeHeng/go-web-api/internal/pkg/factory"
 	"github.com/YeHeng/go-web-api/pkg/color"
 	"github.com/YeHeng/go-web-api/pkg/config"
-	"os"
 
 	"github.com/gin-gonic/gin"
 	"github.com/natefinch/lumberjack"

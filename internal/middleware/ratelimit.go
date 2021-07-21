@@ -2,14 +2,16 @@ package middleware
 
 import (
 	"fmt"
+	"net/http"
+	"time"
+
 	"github.com/YeHeng/go-web-api/internal/code"
 	"github.com/YeHeng/go-web-api/pkg/color"
 	"github.com/YeHeng/go-web-api/pkg/config"
 	"github.com/YeHeng/go-web-api/pkg/errno"
+
 	"github.com/gin-gonic/gin"
 	"golang.org/x/time/rate"
-	"net/http"
-	"time"
 )
 
 const (

@@ -2,19 +2,21 @@ package core
 
 import (
 	"fmt"
+	"net/http"
+	"net/url"
+	"runtime/debug"
+	"time"
+
 	"github.com/YeHeng/go-web-api/internal/code"
 	"github.com/YeHeng/go-web-api/internal/middleware"
 	"github.com/YeHeng/go-web-api/internal/pkg/logger"
 	"github.com/YeHeng/go-web-api/pkg/config"
 	"github.com/YeHeng/go-web-api/pkg/errno"
 	"github.com/YeHeng/go-web-api/pkg/trace"
+
 	"github.com/gin-gonic/gin"
 	"go.uber.org/multierr"
 	"go.uber.org/zap"
-	"net/http"
-	"net/url"
-	"runtime/debug"
-	"time"
 )
 
 func dispatcher(r *gin.Engine) {

@@ -3,16 +3,19 @@ package core
 import (
 	c "context"
 	"fmt"
-	"github.com/YeHeng/go-web-api/internal/middleware"
-	"github.com/YeHeng/go-web-api/internal/pkg/logger"
-	"github.com/YeHeng/go-web-api/pkg/config"
-	"github.com/gin-gonic/gin"
-	"github.com/pkg/errors"
 	"net/http"
 	"os"
 	"os/signal"
 	"syscall"
 	"time"
+
+	"github.com/YeHeng/go-web-api/internal/middleware"
+	"github.com/YeHeng/go-web-api/internal/pkg/factory"
+	"github.com/YeHeng/go-web-api/internal/pkg/logger"
+	"github.com/YeHeng/go-web-api/pkg/config"
+
+	"github.com/gin-gonic/gin"
+	"github.com/pkg/errors"
 )
 
 var _ Mux = (*mux)(nil)
@@ -75,6 +78,11 @@ func Create() (Mux, error) {
 	// it won't block the graceful shutdown handling below
 	go func() {
 		if err := srv.ListenAndServe(); err != nil {
+
+			for _, p := range factory.GetAllBeans() {
+				p.Destroy()
+			}
+
 			if errors.Is(err, http.ErrServerClosed) {
 				log.Info("Server exited.")
 			} else {
@@ -92,6 +100,10 @@ func Create() (Mux, error) {
 	signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
 	<-quit
 	log.Info("Shutting down server...")
+
+	for _, p := range factory.GetAllBeans() {
+		p.Destroy()
+	}
 
 	// The context is used to inform the server it has 5 seconds to finish
 	// the request it is currently handling

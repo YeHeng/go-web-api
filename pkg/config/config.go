@@ -2,11 +2,12 @@ package config
 
 import (
 	"fmt"
-	"github.com/YeHeng/go-web-api/pkg/color"
-	"github.com/fsnotify/fsnotify"
 	"log"
 	"time"
 
+	"github.com/YeHeng/go-web-api/pkg/color"
+
+	"github.com/fsnotify/fsnotify"
 	"github.com/spf13/viper"
 )
 
@@ -26,13 +27,17 @@ type Configuration struct {
 	Port    string `toml:"port" default:"9092"`
 	Stack   bool   `toml:"stack" default:"false"`
 
+	Secure struct {
+		Salt string `toml:"salt" default:"CIjLJuMFQOS3Kd3r3T84P/EQy89NMcamvIA5iUh+Fr66PaHrlQvDSMASMj/mFzDl7t7fNGo587NhInEkcVNT9Tm0aZBK0sJHKjkSuyF6eHiIDQY5KewwpetfRnpigG5z57DC++Rflkuf+XkL8OZgvshfCVOKrAyBDFhlhl9T3Dk="`
+	}
+
 	Feature struct {
-		DisablePProf      bool `toml:"disablePProf" disablePProf:"port" default:"false"`
-		DisableSwagger    bool `toml:"disableSwagger" default:"true"`
-		PanicNotify       bool `toml:"panicNotify" default:"true"`
-		RecordMetrics     bool `toml:"recordMetrics" default:"true"`
-		EnableCors        bool `toml:"enableCors" default:"true"`
-		EnableRate        bool `toml:"enableRate" default:"true"`
+		DisablePProf   bool `toml:"disablePProf" disablePProf:"port" default:"false"`
+		DisableSwagger bool `toml:"disableSwagger" default:"true"`
+		PanicNotify    bool `toml:"panicNotify" default:"true"`
+		RecordMetrics  bool `toml:"recordMetrics" default:"true"`
+		EnableCors     bool `toml:"enableCors" default:"true"`
+		EnableRate     bool `toml:"enableRate" default:"true"`
 	} `toml:"feature"`
 
 	Cors struct {

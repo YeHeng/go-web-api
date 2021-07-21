@@ -2,13 +2,17 @@ package middleware
 
 import (
 	"fmt"
-	repo "github.com/YeHeng/go-web-api/internal/pkg/db"
+	"net/http"
+	"time"
+
+	"github.com/YeHeng/go-web-api/internal/api/repository/db_repo"
+	"github.com/YeHeng/go-web-api/internal/api/repository/db_repo/user_repo"
 	"github.com/YeHeng/go-web-api/internal/pkg/logger"
+	"github.com/YeHeng/go-web-api/pkg/util"
+
 	jwt "github.com/appleboy/gin-jwt/v2"
 	"github.com/gin-gonic/gin"
 	"gorm.io/gorm"
-	"net/http"
-	"time"
 )
 
 const identityKey = "id"
@@ -16,17 +20,6 @@ const identityKey = "id"
 type Credential struct {
 	UserName string
 	Roles    []*Role
-}
-
-type User struct {
-	ID          int64     `gorm:"primaryKey;"`
-	Email       string    `gorm:"uniqueIndex;size:512;not null;"`
-	Username    string    `gorm:"uniqueIndex;size:512;not null;"`
-	Password    string    `gorm:"not null"`
-	Enabled     bool      `gorm:"not null;default:false"`
-	Expired     time.Time `gorm:"not null;"`
-	CreatedTime time.Time `gorm:"autoCreateTime;not null;"`
-	UpdateTime  time.Time `gorm:"autoUpdateTime;not null;"`
 }
 
 type Role struct {
@@ -126,14 +119,19 @@ func Authenticator(c *gin.Context) (interface{}, error) {
 	userID := loginVals.Username
 	password := loginVals.Password
 
-	var user User
-	r := repo.Get()
-	if err := r.GetDb().Where("Username = ? AND Password = ?", userID, password).First(&user).Error; err != nil {
+	md5 := util.GeneratePassword(password)
+
+	qb := user_repo.NewQueryBuilder()
+	qb.WhereIsDeleted(db_repo.EqualPredicate, 0)
+	qb.WhereUsername(db_repo.EqualPredicate, userID)
+	qb.WherePassword(db_repo.EqualPredicate, md5)
+	u, err := qb.QueryOne()
+	if err != nil {
 		return nil, jwt.ErrFailedAuthentication
 	}
 
 	return &Credential{
-		UserName: user.Username,
+		UserName: u.Username,
 		Roles:    nil,
 	}, nil
 

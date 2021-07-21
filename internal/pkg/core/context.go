@@ -3,14 +3,15 @@ package core
 import (
 	"bytes"
 	stdctx "context"
-	"github.com/YeHeng/go-web-api/pkg/errno"
-	"github.com/YeHeng/go-web-api/pkg/trace"
-	"github.com/YeHeng/go-web-api/pkg/util"
 	io "io"
 	"net/http"
 	"net/url"
 	"strings"
 	"sync"
+
+	"github.com/YeHeng/go-web-api/pkg/errno"
+	"github.com/YeHeng/go-web-api/pkg/trace"
+	"github.com/YeHeng/go-web-api/pkg/util"
 
 	"github.com/gin-gonic/gin"
 	"github.com/gin-gonic/gin/binding"

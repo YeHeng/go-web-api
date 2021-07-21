@@ -2,14 +2,15 @@ package db
 
 import (
 	"fmt"
+	"time"
+
 	"github.com/YeHeng/go-web-api/pkg/color"
 	"github.com/YeHeng/go-web-api/pkg/config"
-	"gorm.io/gorm/logger"
-	"time"
 
 	"github.com/pkg/errors"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
+	"gorm.io/gorm/logger"
 	"gorm.io/gorm/schema"
 )
 
@@ -27,6 +28,10 @@ func init() {
 
 func Get() Repo {
 	return r
+}
+
+func GetDb() *gorm.DB {
+	return r.GetDb()
 }
 
 type Repo interface {
