@@ -2,10 +2,8 @@ package middleware
 
 import (
 	"fmt"
-
 	"github.com/YeHeng/go-web-api/pkg/color"
 	"github.com/YeHeng/go-web-api/pkg/config"
-
 	"github.com/gin-gonic/gin"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
@@ -15,6 +13,8 @@ import (
 var metricsRequestsTotal *prometheus.CounterVec
 var metricsRequestsCost *prometheus.HistogramVec
 
+var prometheusHandler gin.HandlerFunc
+
 func init() {
 	AddMiddleware(&prometheusMiddleware{})
 }
@@ -22,7 +22,7 @@ func init() {
 type prometheusMiddleware struct {
 }
 
-func (m *prometheusMiddleware) Init(r *gin.Engine) {
+func (m *prometheusMiddleware) Init() {
 
 	cfg := config.Get().Feature
 	if cfg.RecordMetrics {
@@ -50,10 +50,21 @@ func (m *prometheusMiddleware) Init(r *gin.Engine) {
 
 		prometheus.MustRegister(metricsRequestsTotal, metricsRequestsCost)
 
-		r.GET("/metrics", gin.WrapH(promhttp.Handler())) // register prometheus
+		prometheusHandler = gin.WrapH(promhttp.Handler())
 
 	}
 
+}
+
+func (m *prometheusMiddleware) Apply(r *gin.Engine) {
+	cfg := config.Get().Feature
+	if cfg.RecordMetrics {
+		r.GET("/metrics", prometheusHandler) // register prometheus
+	}
+}
+
+func (m *prometheusMiddleware) Get() gin.HandlerFunc {
+	return prometheusHandler
 }
 
 func (m *prometheusMiddleware) Destroy() {

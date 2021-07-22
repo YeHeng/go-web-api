@@ -17,13 +17,20 @@ func init() {
 type pprofMiddleware struct {
 }
 
-func (m *pprofMiddleware) Destroy() {
+func (m *pprofMiddleware) Init() {
 }
 
-func (m *pprofMiddleware) Init(r *gin.Engine) {
+func (m *pprofMiddleware) Apply(r *gin.Engine) {
 	cfg := config.Get().Feature
 	if !cfg.DisablePProf {
 		fmt.Println(color.Green("* [register middleware pprof]"))
 		pprof.Register(r) // register pprof to gin
 	}
+}
+
+func (m *pprofMiddleware) Get() gin.HandlerFunc {
+	return nil
+}
+
+func (m *pprofMiddleware) Destroy() {
 }

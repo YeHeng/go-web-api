@@ -40,7 +40,7 @@ func Create() (Mux, error) {
 		return nil, errors.New("logger required")
 	}
 
-	//gin.SetMode(gin.ReleaseMode)
+	gin.SetMode(gin.ReleaseMode)
 	gin.DisableBindValidation()
 
 	mux := &mux{
@@ -50,7 +50,8 @@ func Create() (Mux, error) {
 	dispatcher(mux.engine)
 
 	for _, m := range middleware.GetMiddlewares() {
-		m.Init(mux.engine)
+		m.Init()
+		m.Apply(mux.engine)
 	}
 
 	mux.engine.NoMethod(wrapHandlers(DisableTrace, func(c Context) {
@@ -79,6 +80,10 @@ func Create() (Mux, error) {
 	go func() {
 		if err := srv.ListenAndServe(); err != nil {
 
+			for _, m := range middleware.GetMiddlewares() {
+				m.Destroy()
+			}
+
 			for _, p := range factory.GetAllBeans() {
 				p.Destroy()
 			}
@@ -100,6 +105,10 @@ func Create() (Mux, error) {
 	signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
 	<-quit
 	log.Info("Shutting down server...")
+
+	for _, m := range middleware.GetMiddlewares() {
+		m.Destroy()
+	}
 
 	for _, p := range factory.GetAllBeans() {
 		p.Destroy()

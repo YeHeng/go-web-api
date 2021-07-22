@@ -22,17 +22,15 @@ func init() {
 	AddMiddleware(&recoverMiddleware{})
 }
 
+var recoveryHandler gin.HandlerFunc
+
 type recoverMiddleware struct {
 }
 
-func (m *recoverMiddleware) Destroy() {
-}
-
-func (m *recoverMiddleware) Init(r *gin.Engine) {
+func (m *recoverMiddleware) Init() {
 	log := logger.Get()
 	stack := config.Get().Stack
-	fmt.Println(color.Green("* [register middleware recovery]"))
-	r.Use(func(c *gin.Context) {
+	recoveryHandler = func(c *gin.Context) {
 		defer func() {
 
 			if err := recover(); err != nil {
@@ -87,5 +85,17 @@ func (m *recoverMiddleware) Init(r *gin.Engine) {
 			}
 		}()
 		c.Next()
-	})
+	}
+}
+
+func (m *recoverMiddleware) Apply(r *gin.Engine) {
+	fmt.Println(color.Green("* [register middleware recovery]"))
+	r.Use(recoveryHandler)
+}
+
+func (m *recoverMiddleware) Get() gin.HandlerFunc {
+	return recoveryHandler
+}
+
+func (m *recoverMiddleware) Destroy() {
 }

@@ -5,7 +5,9 @@ import (
 )
 
 type Middleware interface {
-	Init(r *gin.Engine)
+	Init()
+	Apply(r *gin.Engine)
+	Get() gin.HandlerFunc
 	Destroy()
 }
 

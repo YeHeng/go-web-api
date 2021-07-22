@@ -32,6 +32,8 @@ type Login struct {
 	Password string `form:"password" json:"password" binding:"required"`
 }
 
+var jwtAuthMiddleware *jwt.GinJWTMiddleware
+
 func init() {
 	AddMiddleware(&jwtMiddleware{})
 }
@@ -39,14 +41,35 @@ func init() {
 type jwtMiddleware struct {
 }
 
-func (m *jwtMiddleware) Destroy() {
-}
-
-func (m *jwtMiddleware) Init(r *gin.Engine) {
+func (m *jwtMiddleware) Apply(r *gin.Engine) {
 
 	log := logger.Get()
 
-	JwtAuthMiddleware, err := jwt.New(&jwt.GinJWTMiddleware{
+	r.POST("/login", jwtAuthMiddleware.LoginHandler)
+	r.GET("/refresh_token", jwtAuthMiddleware.RefreshHandler)
+	r.GET("/logout", jwtAuthMiddleware.LogoutHandler)
+
+	r.NoRoute(jwtAuthMiddleware.MiddlewareFunc(), func(c *gin.Context) {
+		claims := jwt.ExtractClaims(c)
+		log.Info(fmt.Sprintf("NoRoute claims: %#v\n", claims))
+		c.JSON(404, gin.H{"code": "PAGE_NOT_FOUND", "message": "Page not found"})
+	})
+
+}
+
+func (m *jwtMiddleware) Destroy() {
+}
+
+func (m *jwtMiddleware) Get() gin.HandlerFunc {
+	return jwtAuthMiddleware.MiddlewareFunc()
+}
+
+func (m *jwtMiddleware) Init() {
+
+	log := logger.Get()
+	var err error
+
+	jwtAuthMiddleware, err = jwt.New(&jwt.GinJWTMiddleware{
 		Realm:           "Golang Web Tools",
 		Key:             []byte("OTM4QzgzMDktODRDNi00RDcyLUI5ODctQzEzMEU0ODQwNThECg=="),
 		SecureCookie:    true,
@@ -92,22 +115,12 @@ func (m *jwtMiddleware) Init(r *gin.Engine) {
 
 	// When you use auth.New(), the function is already automatically called for checking,
 	// which means you don't need to call it again.
-	errInit := JwtAuthMiddleware.MiddlewareInit()
+	errInit := jwtAuthMiddleware.MiddlewareInit()
 
 	if errInit != nil {
 		log.Fatal("authMiddleware.MiddlewareInit() Error:" + errInit.Error())
 		panic(err)
 	}
-
-	r.POST("/login", JwtAuthMiddleware.LoginHandler)
-	r.GET("/refresh_token", JwtAuthMiddleware.RefreshHandler)
-	r.GET("/logout", JwtAuthMiddleware.LogoutHandler)
-
-	r.NoRoute(JwtAuthMiddleware.MiddlewareFunc(), func(c *gin.Context) {
-		claims := jwt.ExtractClaims(c)
-		log.Info(fmt.Sprintf("NoRoute claims: %#v\n", claims))
-		c.JSON(404, gin.H{"code": "PAGE_NOT_FOUND", "message": "Page not found"})
-	})
 
 }
 

@@ -1,12 +1,10 @@
 package middleware
 
 import (
-	"fmt"
 	"net/http"
 	"time"
 
 	"github.com/YeHeng/go-web-api/internal/code"
-	"github.com/YeHeng/go-web-api/pkg/color"
 	"github.com/YeHeng/go-web-api/pkg/config"
 	"github.com/YeHeng/go-web-api/pkg/errno"
 
@@ -19,6 +17,8 @@ const (
 	_AbortErrorName = "_abort_error_"
 )
 
+var rateLimitHandler gin.HandlerFunc
+
 func init() {
 	AddMiddleware(&rateLimitMiddleware{})
 }
@@ -26,15 +26,11 @@ func init() {
 type rateLimitMiddleware struct {
 }
 
-func (m *rateLimitMiddleware) Destroy() {
-}
-
-func (m *rateLimitMiddleware) Init(r *gin.Engine) {
+func (m *rateLimitMiddleware) Init() {
 	cfg := config.Get().Feature
 	if cfg.EnableRate {
-		fmt.Println(color.Green("* [register swagger]"))
 		limiter := rate.NewLimiter(rate.Every(time.Second*1), _MaxBurstSize)
-		r.Use(func(ctx *gin.Context) {
+		rateLimitHandler = func(ctx *gin.Context) {
 
 			if !limiter.Allow() {
 
@@ -55,6 +51,20 @@ func (m *rateLimitMiddleware) Init(r *gin.Engine) {
 			}
 
 			ctx.Next()
-		})
+		}
 	}
+}
+
+func (m *rateLimitMiddleware) Apply(r *gin.Engine) {
+	cfg := config.Get().Feature
+	if cfg.EnableRate {
+		r.Use(rateLimitHandler)
+	}
+}
+
+func (m *rateLimitMiddleware) Get() gin.HandlerFunc {
+	return rateLimitHandler
+}
+
+func (m *rateLimitMiddleware) Destroy() {
 }
