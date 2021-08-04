@@ -1,9 +1,9 @@
-package core
+package context
 
 import (
 	"bytes"
 	stdctx "context"
-	io "io"
+	"io"
 	"net/http"
 	"net/url"
 	"strings"
@@ -37,13 +37,13 @@ var contextPool = &sync.Pool{
 	},
 }
 
-func newContext(ctx *gin.Context) Context {
+func NewContext(ctx *gin.Context) Context {
 	context := contextPool.Get().(*context)
 	context.ctx = ctx
 	return context
 }
 
-func releaseContext(ctx Context) {
+func ReleaseContext(ctx Context) {
 	c := ctx.(*context)
 	c.ctx = nil
 	contextPool.Put(c)
@@ -54,7 +54,7 @@ var _ Context = (*context)(nil)
 type OnPanicNotify func(ctx Context, err interface{}, stackInfo string)
 
 type Context interface {
-	init()
+	Init()
 
 	// ShouldBindQuery 反序列化 querystring
 	// tag: `form:"xxx"` (注：不要写成 query)
@@ -82,19 +82,19 @@ type Context interface {
 
 	// Trace 获取 Trace 对象
 	Trace() Trace
-	setTrace(trace Trace)
-	disableTrace()
+	SetTrace(trace Trace)
+	DisableTrace()
 
 	// Payload 正确返回
 	Payload(payload interface{})
-	getPayload() interface{}
+	GetPayload() interface{}
 
 	// HTML 返回界面
 	HTML(name string, obj interface{})
 
 	// AbortWithError 错误返回
 	AbortWithError(err errno.Error)
-	abortError() errno.Error
+	AbortError() errno.Error
 
 	// Header 获取 Header 对象
 	Header() http.Header
@@ -105,15 +105,15 @@ type Context interface {
 
 	// UserID 获取 UserID
 	UserID() int64
-	setUserID(userID int64)
+	SetUserID(userID int64)
 
 	// UserName 获取 UserName
 	UserName() string
-	setUserName(userName string)
+	SetUserName(userName string)
 
 	// Alias 设置路由别名 for metrics uri
 	Alias() string
-	setAlias(path string)
+	SetAlias(path string)
 
 	// RequestInputParams 获取所有参数
 	RequestInputParams() url.Values
@@ -153,7 +153,7 @@ type StdContext struct {
 	Trace
 }
 
-func (c *context) init() {
+func (c *context) Init() {
 	body, err := c.ctx.GetRawData()
 	if err != nil {
 		panic(err)
@@ -228,15 +228,15 @@ func (c *context) Trace() Trace {
 	return t.(Trace)
 }
 
-func (c *context) setTrace(trace Trace) {
+func (c *context) SetTrace(trace Trace) {
 	c.ctx.Set(_TraceName, trace)
 }
 
-func (c *context) disableTrace() {
-	c.setTrace(nil)
+func (c *context) DisableTrace() {
+	c.SetTrace(nil)
 }
 
-func (c *context) getPayload() interface{} {
+func (c *context) GetPayload() interface{} {
 	if payload, ok := c.ctx.Get(_PayloadName); ok != false {
 		return payload
 	}
@@ -281,7 +281,7 @@ func (c *context) UserID() int64 {
 	return val.(int64)
 }
 
-func (c *context) setUserID(userID int64) {
+func (c *context) SetUserID(userID int64) {
 	c.ctx.Set(_UserID, userID)
 }
 
@@ -294,7 +294,7 @@ func (c *context) UserName() string {
 	return val.(string)
 }
 
-func (c *context) setUserName(userName string) {
+func (c *context) SetUserName(userName string) {
 	c.ctx.Set(_UserName, userName)
 }
 
@@ -310,7 +310,7 @@ func (c *context) AbortWithError(err errno.Error) {
 	}
 }
 
-func (c *context) abortError() errno.Error {
+func (c *context) AbortError() errno.Error {
 	c.ctx.Next()
 	return nil
 }
@@ -324,7 +324,7 @@ func (c *context) Alias() string {
 	return path.(string)
 }
 
-func (c *context) setAlias(path string) {
+func (c *context) SetAlias(path string) {
 	if path = strings.TrimSpace(path); path != "" {
 		c.ctx.Set(_Alias, path)
 	}

@@ -1,9 +1,9 @@
 package db
 
 import (
-	//"github.com/YeHeng/go-web-api/internal/pkg/core"
 	"time"
 
+	"github.com/YeHeng/go-web-api/internal/pkg/context"
 	"github.com/YeHeng/go-web-api/pkg/time_parse"
 	"github.com/YeHeng/go-web-api/pkg/trace"
 
@@ -50,13 +50,11 @@ func before(db *gorm.DB) {
 }
 
 func after(db *gorm.DB) {
-	//_ctx := db.Statement.Context
-	//ctx, ok := _ctx.(core.StdContext)
-	//if !ok {
-	//	return
-	//}
-
-	//ctx := db.Statement.Context
+	_ctx := db.Statement.Context
+	ctx, ok := _ctx.(context.StdContext)
+	if !ok {
+		return
+	}
 
 	_ts, isExist := db.InstanceGet(startTime)
 	if !isExist {
@@ -76,7 +74,7 @@ func after(db *gorm.DB) {
 	sqlInfo.Stack = utils.FileWithLineNum()
 	sqlInfo.Rows = db.Statement.RowsAffected
 	sqlInfo.CostSeconds = time.Since(ts).Seconds()
-	//ctx.Trace.AppendSQL(sqlInfo)
+	ctx.Trace.AppendSQL(sqlInfo)
 
 	return
 }

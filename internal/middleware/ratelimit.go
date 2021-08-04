@@ -20,7 +20,7 @@ const (
 var rateLimitHandler gin.HandlerFunc
 
 func init() {
-	AddMiddleware(&rateLimitMiddleware{})
+	//AddMiddleware(&rateLimitMiddleware{})
 }
 
 type rateLimitMiddleware struct {

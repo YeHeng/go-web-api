@@ -47,6 +47,15 @@ type Configuration struct {
 		AllowCredentials bool   `toml:"allowCredentials" default:"true"`
 	} `toml:"cors"`
 
+	Redis struct {
+		Addr         string `toml:"addr" default:"127.0.0.1:3306"`
+		Pass         string `toml:"pass" default:""`
+		Db           int    `toml:"db" default:"0"`
+		MaxRetries   int    `toml:"maxRetries" default:"3""`
+		PoolSize     int    `toml:"poolSize" default:"10"`
+		MinIdleConns int    `toml:"minIdleConns" default:"5"`
+	} `toml:"redis"`
+
 	Logger struct {
 		Folder   string `toml:"folder" default:"./logs/"`
 		Filename string `toml:"filename" default:"app.logger"`

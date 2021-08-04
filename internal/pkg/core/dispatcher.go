@@ -9,6 +9,7 @@ import (
 
 	"github.com/YeHeng/go-web-api/internal/code"
 	"github.com/YeHeng/go-web-api/internal/middleware"
+	"github.com/YeHeng/go-web-api/internal/pkg/context"
 	"github.com/YeHeng/go-web-api/internal/pkg/logger"
 	"github.com/YeHeng/go-web-api/pkg/config"
 	"github.com/YeHeng/go-web-api/pkg/errno"
@@ -47,16 +48,16 @@ func dispatcher(r *gin.Engine) {
 	r.Use(func(c *gin.Context) {
 		ts := time.Now()
 
-		context := newContext(c)
-		defer releaseContext(context)
+		ctx := context.NewContext(c)
+		defer context.ReleaseContext(ctx)
 
-		context.init()
+		ctx.Init()
 
 		if !withoutTracePaths[c.Request.URL.Path] {
-			if traceId := context.GetHeader(trace.Header); traceId != "" {
-				context.setTrace(trace.New(traceId))
+			if traceId := ctx.GetHeader(trace.Header); traceId != "" {
+				ctx.SetTrace(trace.New(traceId))
 			} else {
-				context.setTrace(trace.New(""))
+				ctx.SetTrace(trace.New(""))
 			}
 		}
 
@@ -64,7 +65,7 @@ func dispatcher(r *gin.Engine) {
 			if err := recover(); err != nil {
 				stackInfo := string(debug.Stack())
 				log.Error("got panic", zap.String("panic", fmt.Sprintf("%+v", err)), zap.String("stack", stackInfo))
-				context.AbortWithError(errno.NewError(
+				ctx.AbortWithError(errno.NewError(
 					http.StatusInternalServerError,
 					code.ServerError,
 					code.Text(code.ServerError)),
@@ -93,14 +94,14 @@ func dispatcher(r *gin.Engine) {
 					multierr.AppendInto(&abortErr, c.Errors[i])
 				}
 
-				if err := context.abortError(); err != nil { // customer err
+				if err := ctx.AbortError(); err != nil { // customer err
 					multierr.AppendInto(&abortErr, err.GetErr())
 					response = err
 					businessCode = err.GetBusinessCode()
 					businessCodeMsg = err.GetMsg()
 
-					if x := context.Trace(); x != nil {
-						context.SetHeader(trace.Header, x.ID())
+					if x := ctx.Trace(); x != nil {
+						ctx.SetHeader(trace.Header, x.ID())
 						traceId = x.ID()
 					}
 
@@ -110,26 +111,26 @@ func dispatcher(r *gin.Engine) {
 					})
 				}
 			} else {
-				response = context.getPayload()
+				response = ctx.GetPayload()
 				if response != nil {
-					if x := context.Trace(); x != nil {
-						context.SetHeader(trace.Header, x.ID())
+					if x := ctx.Trace(); x != nil {
+						ctx.SetHeader(trace.Header, x.ID())
 						traceId = x.ID()
 					}
 					c.JSON(http.StatusOK, response)
 				}
 			}
 
-			graphResponse = context.getPayload()
+			graphResponse = ctx.GetPayload()
 
 			if feature.RecordMetrics {
-				uri := context.URI()
-				if alias := context.Alias(); alias != "" {
+				uri := ctx.URI()
+				if alias := ctx.Alias(); alias != "" {
 					uri = alias
 				}
 
 				middleware.RecordMetrics(
-					context.Method(),
+					ctx.Method(),
 					uri,
 					!c.IsAborted() && c.Writer.Status() == http.StatusOK,
 					c.Writer.Status(),
@@ -140,7 +141,7 @@ func dispatcher(r *gin.Engine) {
 			}
 
 			var t *trace.Trace
-			if x := context.Trace(); x != nil {
+			if x := ctx.Trace(); x != nil {
 				t = x.(*trace.Trace)
 			} else {
 				return
@@ -161,7 +162,7 @@ func dispatcher(r *gin.Engine) {
 				Method:     c.Request.Method,
 				DecodedURL: decodedURL,
 				Header:     traceHeader,
-				Body:       string(context.RawData()),
+				Body:       string(ctx.RawData()),
 			})
 
 			var responseBody interface{}
@@ -195,7 +196,6 @@ func dispatcher(r *gin.Engine) {
 				zap.Any("success", t.Success),
 				zap.Any("cost_seconds", t.CostSeconds),
 				zap.Any("trace_id", t.Identifier),
-				zap.Any("trace_info", t),
 				zap.Error(abortErr),
 			)
 		}()

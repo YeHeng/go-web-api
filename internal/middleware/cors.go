@@ -3,11 +3,13 @@ package middleware
 import (
 	"encoding/json"
 	"fmt"
+	"strings"
+
 	"github.com/YeHeng/go-web-api/pkg/color"
 	"github.com/YeHeng/go-web-api/pkg/config"
+
 	"github.com/gin-gonic/gin"
 	cors "github.com/rs/cors/wrapper/gin"
-	"strings"
 )
 
 var corsHandler gin.HandlerFunc

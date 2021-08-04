@@ -10,6 +10,7 @@ import (
 	"time"
 
 	"github.com/YeHeng/go-web-api/internal/middleware"
+	"github.com/YeHeng/go-web-api/internal/pkg/context"
 	"github.com/YeHeng/go-web-api/internal/pkg/factory"
 	"github.com/YeHeng/go-web-api/internal/pkg/logger"
 	"github.com/YeHeng/go-web-api/pkg/config"
@@ -40,7 +41,7 @@ func Create() (Mux, error) {
 		return nil, errors.New("logger required")
 	}
 
-	gin.SetMode(gin.ReleaseMode)
+	gin.SetMode(gin.DebugMode)
 	gin.DisableBindValidation()
 
 	mux := &mux{
@@ -54,14 +55,14 @@ func Create() (Mux, error) {
 		m.Apply(mux.engine)
 	}
 
-	mux.engine.NoMethod(wrapHandlers(DisableTrace, func(c Context) {
+	mux.engine.NoMethod(wrapHandlers(DisableTrace, func(c context.Context) {
 		c.GetContext().JSON(http.StatusMethodNotAllowed, gin.H{
 			"code":    http.StatusMethodNotAllowed,
 			"message": http.StatusText(http.StatusMethodNotAllowed),
 			"uri":     c.URI(),
 		})
 	})...)
-	mux.engine.NoRoute(wrapHandlers(DisableTrace, func(c Context) {
+	mux.engine.NoRoute(wrapHandlers(DisableTrace, func(c context.Context) {
 		c.GetContext().JSON(http.StatusNotFound, gin.H{
 			"code":    http.StatusNotFound,
 			"message": http.StatusText(http.StatusNotFound),
@@ -126,20 +127,20 @@ func Create() (Mux, error) {
 	return mux, nil
 }
 
-func DisableTrace(ctx Context) {
-	ctx.disableTrace()
+func DisableTrace(ctx context.Context) {
+	ctx.DisableTrace()
 }
 
-func wrapHandlers(handlers ...HandlerFunc) []gin.HandlerFunc {
+func wrapHandlers(handlers ...context.HandlerFunc) []gin.HandlerFunc {
 	funcs := make([]gin.HandlerFunc, len(handlers))
 	for i, handler := range handlers {
 		handler := handler
 		funcs[i] = func(c *gin.Context) {
 
-			ctx := newContext(c)
-			defer releaseContext(ctx)
+			ct := context.NewContext(c)
+			defer context.ReleaseContext(ct)
 
-			handler(ctx)
+			handler(ct)
 		}
 	}
 
